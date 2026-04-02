@@ -1,0 +1,19 @@
+package com.example.demo.service;
+
+import com.example.demo.dto.EventDTO;
+import com.example.demo.entity.EventStatus;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface EventService {
+    EventDTO createEvent(EventDTO eventDTO);
+    EventDTO updateEvent(Long id, EventDTO eventDTO);
+    EventDTO getEventById(Long id);
+    List<EventDTO> getAllEvents();
+    List<EventDTO> getEventsByStatus(EventStatus status);
+    List<EventDTO> getEventsByCategory(Long categoryId);
+    List<EventDTO> searchEvents(String keyword, EventStatus status);
+    List<EventDTO> getEventsBetween(LocalDateTime startDate, LocalDateTime endDate);
+    void deleteEvent(Long id);
+    void updateEventStatus(Long id, EventStatus status);
+}
