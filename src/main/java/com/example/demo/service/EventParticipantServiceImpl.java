@@ -1,5 +1,11 @@
 package com.example.demo.service;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.example.demo.dto.EventParticipantDTO;
 import com.example.demo.entity.Event;
 import com.example.demo.entity.EventParticipant;
@@ -8,13 +14,10 @@ import com.example.demo.entity.ParticipationStatus;
 import com.example.demo.exception.DuplicateRegistrationException;
 import com.example.demo.exception.EventFullException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.TimeConflictException;
 import com.example.demo.repository.EventParticipantRepository;
 import com.example.demo.repository.EventRepository;
 import com.example.demo.repository.ParticipantRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EventParticipantServiceImpl implements EventParticipantService {
@@ -22,13 +25,16 @@ public class EventParticipantServiceImpl implements EventParticipantService {
     private final EventParticipantRepository eventParticipantRepository;
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
+    private final EmailService emailService;
     
     public EventParticipantServiceImpl(EventParticipantRepository eventParticipantRepository,
                                       EventRepository eventRepository,
-                                      ParticipantRepository participantRepository) {
+                                      ParticipantRepository participantRepository,
+                                      EmailService emailService) {
         this.eventParticipantRepository = eventParticipantRepository;
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
+        this.emailService = emailService;
     }
     
     @Override
@@ -49,8 +55,30 @@ public class EventParticipantServiceImpl implements EventParticipantService {
             throw new EventFullException(event.getTitle(), event.getCapacity());
         }
         
+        // 🔴 ZAM AN ÇAKIŞMASI KONTROLÜ 🔴
+        // Katılımcının aynı saatinde başka bir etkinliğe kayıtlı olup olmadığını kontrol et
+        List<Event> conflictingEvents = eventRepository.findConflictingEvents(
+            eventId, event.getStartDate(), event.getEndDate()
+        );
+        
+        for (Event conflictingEvent : conflictingEvents) {
+            if (eventParticipantRepository.existsByEventIdAndParticipantId(conflictingEvent.getId(), participantId)) {
+                throw new TimeConflictException(eventId, participantId);
+            }
+        }
+        
         EventParticipant eventParticipant = new EventParticipant(event, participant);
         EventParticipant savedParticipant = eventParticipantRepository.save(eventParticipant);
+        
+        // 📧 KAYIT ONAY E-POSTASI GÖNDER 📧
+        String participantFullName = participant.getFirstName() + " " + participant.getLastName();
+        String eventDate = event.getStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        emailService.sendEventRegistrationConfirmation(
+            participant.getEmail(),
+            participantFullName,
+            event.getTitle(),
+            eventDate
+        );
         
         return convertToDTO(savedParticipant);
     }

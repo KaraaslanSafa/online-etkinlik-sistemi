@@ -1,8 +1,9 @@
 package com.example.demo.dto;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 public class EventDTO {
     private Long id;
@@ -21,6 +22,12 @@ public class EventDTO {
     @NotBlank(message = "Lokasyon boş olamaz")
     private String location;
     
+    private String city;
+    
+    private Double price = 0.0;
+    
+    private Boolean isFree = false;
+    
     private Integer capacity;
     
     @NotNull(message = "Kategori ID boş olamaz")
@@ -34,14 +41,17 @@ public class EventDTO {
     }
     
     public EventDTO(Long id, String title, String description, LocalDateTime startDate, 
-                    LocalDateTime endDate, String location, Integer capacity, Long categoryId, 
-                    String status, Integer participantCount) {
+                    LocalDateTime endDate, String location, String city, Double price, Boolean isFree,
+                    Integer capacity, Long categoryId, String status, Integer participantCount) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
+        this.city = city;
+        this.price = price;
+        this.isFree = isFree;
         this.capacity = capacity;
         this.categoryId = categoryId;
         this.status = status;
@@ -127,5 +137,29 @@ public class EventDTO {
     
     public void setParticipantCount(Integer participantCount) {
         this.participantCount = participantCount;
+    }
+    
+    public String getCity() {
+        return city;
+    }
+    
+    public void setCity(String city) {
+        this.city = city;
+    }
+    
+    public Double getPrice() {
+        return price;
+    }
+    
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+    
+    public Boolean getIsFree() {
+        return isFree;
+    }
+    
+    public void setIsFree(Boolean isFree) {
+        this.isFree = isFree;
     }
 }

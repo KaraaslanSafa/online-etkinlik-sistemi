@@ -1,11 +1,24 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Events")
@@ -33,6 +46,15 @@ public class Event {
     @NotBlank(message = "Lokasyon boş olamaz")
     @Column(nullable = false, length = 300)
     private String location;
+    
+    @Column(length = 100)
+    private String city;
+    
+    @Column(name = "price_amount")
+    private Double price = 0.0;
+    
+    @Column(columnDefinition = "BIT DEFAULT 0")
+    private Boolean isFree = false;
     
     @Column(nullable = false)
     private Integer capacity = 100;
@@ -172,5 +194,29 @@ public class Event {
     
     public boolean isAvailable() {
         return getParticipantCount() < capacity;
+    }
+    
+    public String getCity() {
+        return city;
+    }
+    
+    public void setCity(String city) {
+        this.city = city;
+    }
+    
+    public Double getPrice() {
+        return price;
+    }
+    
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+    
+    public Boolean getIsFree() {
+        return isFree;
+    }
+    
+    public void setIsFree(Boolean isFree) {
+        this.isFree = isFree;
     }
 }

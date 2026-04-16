@@ -1,5 +1,11 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.example.demo.dto.EventDTO;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Event;
@@ -7,11 +13,6 @@ import com.example.demo.entity.EventStatus;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.EventRepository;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -35,6 +36,9 @@ public class EventServiceImpl implements EventService {
         event.setStartDate(eventDTO.getStartDate());
         event.setEndDate(eventDTO.getEndDate());
         event.setLocation(eventDTO.getLocation());
+        event.setCity(eventDTO.getCity());
+        event.setPrice(eventDTO.getPrice());
+        event.setIsFree(eventDTO.getIsFree());
         event.setCapacity(eventDTO.getCapacity());
         event.setCategory(category);
         
@@ -58,6 +62,9 @@ public class EventServiceImpl implements EventService {
         event.setStartDate(eventDTO.getStartDate());
         event.setEndDate(eventDTO.getEndDate());
         event.setLocation(eventDTO.getLocation());
+        event.setCity(eventDTO.getCity());
+        event.setPrice(eventDTO.getPrice());
+        event.setIsFree(eventDTO.getIsFree());
         event.setCapacity(eventDTO.getCapacity());
         event.setUpdatedAt(LocalDateTime.now());
         
@@ -113,6 +120,38 @@ public class EventServiceImpl implements EventService {
     }
     
     @Override
+    public List<EventDTO> getEventsByCity(String city) {
+        return eventRepository.findByCity(city)
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<EventDTO> getFreeEvents() {
+        return eventRepository.findByIsFreeTrue()
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<EventDTO> getFreeEventsByCity(String city) {
+        return eventRepository.findByCityAndIsFree(city, true)
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<EventDTO> getEventsByMaxPrice(Double maxPrice) {
+        return eventRepository.findByPriceLessThan(maxPrice)
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
     public void deleteEvent(Long id) {
         if (!eventRepository.existsById(id)) {
             throw ResourceNotFoundException.eventNotFound(id);
@@ -137,6 +176,9 @@ public class EventServiceImpl implements EventService {
             event.getStartDate(),
             event.getEndDate(),
             event.getLocation(),
+            event.getCity(),
+            event.getPrice(),
+            event.getIsFree(),
             event.getCapacity(),
             event.getCategory().getId(),
             event.getStatus().toString(),
