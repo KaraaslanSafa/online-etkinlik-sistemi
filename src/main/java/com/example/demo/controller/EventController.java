@@ -122,6 +122,25 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
     
+    @GetMapping("/advanced-search")
+    @Operation(summary = "Gelişmiş Arama ve Sıralama", description = "Müşteriler için şehre, fiyata ve yıldıza göre etkinlikleri filtreler ve istenilen kritere göre sıralar")
+    @ApiResponse(responseCode = "200", description = "Filtreleme başarıyla uygulandı")
+    public ResponseEntity<List<EventDTO>> advancedSearch(
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,       // price, rating, date
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) { // asc, desc
+        
+        try {
+            List<EventDTO> events = eventService.advancedSearch(city, minPrice, maxPrice, minRating, sortBy, sortDirection);
+            return ResponseEntity.ok(events); 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     @PutMapping("/{id}")
     @Operation(summary = "Etkinliği güncelle", description = "Belirtilen ID'ye sahip etkinliği günceller")
     @ApiResponse(responseCode = "200", description = "Etkinlik başarıyla güncellendi")

@@ -59,6 +59,9 @@ public class Event {
     @Column(nullable = false)
     private Integer capacity = 100;
     
+    @Column(length = 500)
+    private String coverImageUrl;
+    
     @NotNull(message = "Kategori seçilmeli")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
@@ -146,6 +149,14 @@ public class Event {
     
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+    
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+    
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
     
     public Category getCategory() {
