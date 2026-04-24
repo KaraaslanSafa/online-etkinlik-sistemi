@@ -47,4 +47,53 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findConflictingEvents(@Param("eventId") Long eventId, 
                                      @Param("startDate") LocalDateTime startDate, 
                                      @Param("endDate") LocalDateTime endDate);
+    
+    // ======================== SORTING / FILTERING METHODS ========================
+    
+    // Rating-based queries
+    @Query("SELECT e FROM Event e ORDER BY e.averageRating DESC")
+    List<Event> findAllOrderByRatingDesc();
+    
+    @Query("SELECT e FROM Event e WHERE e.averageRating >= :minRating ORDER BY e.averageRating DESC")
+    List<Event> findByMinRatingOrderByRating(@Param("minRating") Double minRating);
+    
+    // Price-based sorting
+    @Query("SELECT e FROM Event e WHERE e.city = :city ORDER BY e.price ASC")
+    List<Event> findByCityOrderByPriceAsc(@Param("city") String city);
+    
+    @Query("SELECT e FROM Event e WHERE e.city = :city ORDER BY e.price DESC")
+    List<Event> findByCityOrderByPriceDesc(@Param("city") String city);
+    
+    @Query("SELECT e FROM Event e ORDER BY e.price ASC")
+    List<Event> findAllOrderByPriceAsc();
+    
+    @Query("SELECT e FROM Event e ORDER BY e.price DESC")
+    List<Event> findAllOrderByPriceDesc();
+    
+    // Combined price and rating
+    @Query("SELECT e FROM Event e WHERE e.price BETWEEN :minPrice AND :maxPrice ORDER BY e.price ASC")
+    List<Event> findByPriceRangeOrderByPrice(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    
+    @Query("SELECT e FROM Event e WHERE e.price BETWEEN :minPrice AND :maxPrice ORDER BY e.averageRating DESC")
+    List<Event> findByPriceRangeOrderByRating(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    
+    // Organizer-based queries
+    List<Event> findByOrganizerIdOrderByCreatedAtDesc(Long organizerId);
+    
+    @Query("SELECT e FROM Event e WHERE e.organizer.id = :organizerId ORDER BY e.averageRating DESC")
+    List<Event> findByOrganizerOrderByRating(@Param("organizerId") Long organizerId);
+    
+    // Date-based sorting
+    @Query("SELECT e FROM Event e ORDER BY e.startDate ASC")
+    List<Event> findAllOrderByStartDateAsc();
+    
+    @Query("SELECT e FROM Event e WHERE e.city = :city ORDER BY e.startDate ASC")
+    List<Event> findByCityOrderByStartDate(@Param("city") String city);
+    
+    // Complex queries - City + Rating + Price
+    @Query("SELECT e FROM Event e WHERE e.city = :city AND e.averageRating >= :minRating AND e.price <= :maxPrice ORDER BY e.averageRating DESC")
+    List<Event> findByCityRatingAndPrice(@Param("city") String city, @Param("minRating") Double minRating, @Param("maxPrice") Double maxPrice);
+    
+    @Query("SELECT e FROM Event e WHERE e.city = :city AND e.isFree = :isFree ORDER BY e.averageRating DESC")
+    List<Event> findByCityAndFreeOrderByRating(@Param("city") String city, @Param("isFree") Boolean isFree);
 }

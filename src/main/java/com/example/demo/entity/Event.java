@@ -71,6 +71,21 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<EventParticipant> eventParticipants = new HashSet<>();
     
+    // Organizatör Bilgisi
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "organizer_id")
+    private EventOrganizer organizer;
+    
+    // Rating ve Review İstatistikleri
+    @Column(columnDefinition = "DECIMAL(3,2) DEFAULT 0")
+    private Double averageRating = 0.0;
+    
+    @Column(columnDefinition = "INT DEFAULT 0")
+    private Integer reviewCount = 0;
+    
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<EventReview> reviews = new HashSet<>();
+    
     @Column(nullable = false, columnDefinition = "DATETIME DEFAULT GETDATE()")
     private LocalDateTime createdAt = LocalDateTime.now();
     
@@ -218,5 +233,37 @@ public class Event {
     
     public void setIsFree(Boolean isFree) {
         this.isFree = isFree;
+    }
+    
+    public EventOrganizer getOrganizer() {
+        return organizer;
+    }
+    
+    public void setOrganizer(EventOrganizer organizer) {
+        this.organizer = organizer;
+    }
+    
+    public Double getAverageRating() {
+        return averageRating;
+    }
+    
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+    
+    public Integer getReviewCount() {
+        return reviewCount;
+    }
+    
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+    
+    public Set<EventReview> getReviews() {
+        return reviews;
+    }
+    
+    public void setReviews(Set<EventReview> reviews) {
+        this.reviews = reviews;
     }
 }
