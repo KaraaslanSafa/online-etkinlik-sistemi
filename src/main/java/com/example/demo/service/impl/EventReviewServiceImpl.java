@@ -1,5 +1,13 @@
 package com.example.demo.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.demo.dto.EventReviewDTO;
 import com.example.demo.entity.Event;
 import com.example.demo.entity.EventReview;
@@ -10,13 +18,6 @@ import com.example.demo.repository.EventRepository;
 import com.example.demo.repository.EventReviewRepository;
 import com.example.demo.repository.ParticipantRepository;
 import com.example.demo.service.EventReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * EventReviewService Implementation
@@ -169,7 +170,7 @@ public class EventReviewServiceImpl implements EventReviewService {
         dto.setEventId(review.getEvent().getId());
         dto.setEventTitle(review.getEvent().getTitle());
         dto.setParticipantId(review.getParticipant().getId());
-        dto.setParticipantName(maskParticipantName(review.getParticipant().getName()));
+        dto.setParticipantName(maskParticipantName(review.getParticipant().getFirstName() + " " + review.getParticipant().getLastName()));
         dto.setRating(review.getRating());
         dto.setTitle(review.getTitle());
         dto.setComment(review.getComment());

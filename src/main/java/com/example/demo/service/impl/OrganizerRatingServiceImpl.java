@@ -1,5 +1,12 @@
 package com.example.demo.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.demo.dto.OrganizerRatingDTO;
 import com.example.demo.entity.EventOrganizer;
 import com.example.demo.entity.OrganizerRating;
@@ -10,13 +17,6 @@ import com.example.demo.repository.EventOrganizerRepository;
 import com.example.demo.repository.OrganizerRatingRepository;
 import com.example.demo.repository.ParticipantRepository;
 import com.example.demo.service.OrganizerRatingService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class OrganizerRatingServiceImpl implements OrganizerRatingService {
@@ -135,7 +135,7 @@ public class OrganizerRatingServiceImpl implements OrganizerRatingService {
         dto.setOrganizerId(rating.getOrganizer().getId());
         dto.setOrganizerName(rating.getOrganizer().getName());
         dto.setParticipantId(rating.getParticipant().getId());
-        dto.setParticipantName(maskParticipantName(rating.getParticipant().getName()));
+        dto.setParticipantName(maskParticipantName(rating.getParticipant().getFirstName() + " " + rating.getParticipant().getLastName()));
         dto.setRating(rating.getRating());
         dto.setComment(rating.getComment());
         dto.setCreatedAt(rating.getCreatedAt());
