@@ -9,7 +9,32 @@ IF OBJECT_ID('Events', 'U') IS NOT NULL
     DROP TABLE Events;
 
 IF OBJECT_ID('Participants', 'U') IS NOT NULL
-    DROP TABLE Participants;
+    DROP TABLE Participants;1. Etkinlik Kapasite ve Çakışma Kontrolü (Business Logic)
+Hocalar sadece veritabanına kayıt atmaya bakmaz, kodun içinde bir "mantık" ararlar.
+
+Özellik: Bir kullanıcı aynı saatte olan iki farklı etkinliğe bilet alamasın. Veya etkinlik kapasitesi 50 kişiyse, 51. kişiye "Kontenjan Doldu" uyarısı versin.
+
+Neden Etkileyici? Bu, sizin sadece kod yazmadığınızı, aynı zamanda projenin senaryosunu (iş mantığını) düşündüğünüzü gösterir.
+
+2. Dinamik Filtreleme ve Arama Motoru
+Sistemdeki yüzlerce etkinliği tek tek aratmak yerine, hocaya şunu gösterebilirsiniz:
+
+Özellik: "Sadece Ankara'daki konserleri getir" veya "Ücretsiz olan eğitimleri göster" gibi filtreler.
+
+Teknik Detay: Spring Data JPA'nın findByCityAndPriceFree gibi özel sorgu metodlarını kullanarak bunu çok kolay yapabilirsiniz.
+
+3. Otomatik Mail Hatırlatıcı (Bonus Puan)
+Eğer hocayı gerçekten şaşırtmak istiyorsanız:
+
+Özellik: Bir kullanıcı etkinliğe kayıt olduğunda, sistem arka planda ona "Biletiniz onaylandı!" diye bir e-posta göndersin.
+
+Teknik Detay: Spring Boot'un içinde gelen spring-boot-starter-mail kütüphanesini kullanarak Gmail üzerinden bile mail attırabilirsiniz.
+
+Projeyi "Görsel" Hale Getirmek İçin Küçük Bir İpucu
+Şu an projeniz sadece arka planda (backend) çalışıyor. Hocaya sonuçları terminalden göstermek biraz sönük kalabilir. Eğer frontend (arayüz) yazmaya vaktiniz yoksa bile şu aracı mutlaka kullanın:
+
+Swagger (OpenAPI) Ekleme:
+Sadece bir kütüphane ekleyerek, projenizin tüm API uçlarını şık bir arayüzde görebilir ve hocaya oradan "Bakın buradan etkinliği ekliyorum, buradan da biletleri listeliyorum" diyerek test ettirebilirsiniz.
 
 IF OBJECT_ID('Categories', 'U') IS NOT NULL
     DROP TABLE Categories;
