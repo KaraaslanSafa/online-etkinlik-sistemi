@@ -37,6 +37,12 @@ public class EventDTO {
     
     private Integer participantCount;
     
+    // Admin Onay Alanları
+    private String approvalStatus;
+    private Long approverAdminId;
+    private LocalDateTime approvedAt;
+    private String rejectionReason;
+    
     public EventDTO() {
     }
     
@@ -161,5 +167,37 @@ public class EventDTO {
     
     public void setIsFree(Boolean isFree) {
         this.isFree = isFree;
+    }
+    
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+    
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+    
+    public Long getApproverAdminId() {
+        return approverAdminId;
+    }
+    
+    public void setApproverAdminId(Long approverAdminId) {
+        this.approverAdminId = approverAdminId;
+    }
+    
+    public LocalDateTime getApprovedAt() {
+        return approvedAt;
+    }
+    
+    public void setApprovedAt(LocalDateTime approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+    
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }

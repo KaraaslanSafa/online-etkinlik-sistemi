@@ -86,6 +86,20 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<EventReview> reviews = new HashSet<>();
     
+    // Admin Onay Sistemi
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApprovalStatus approvalStatus = ApprovalStatus.PENDING;
+    
+    @Column(columnDefinition = "BIGINT")
+    private Long approverAdminId;
+    
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime approvedAt;
+    
+    @Column(length = 500)
+    private String rejectionReason;
+    
     @Column(nullable = false, columnDefinition = "DATETIME DEFAULT GETDATE()")
     private LocalDateTime createdAt = LocalDateTime.now();
     
@@ -265,5 +279,38 @@ public class Event {
     
     public void setReviews(Set<EventReview> reviews) {
         this.reviews = reviews;
+    }
+    
+    // Approval Status Getters and Setters
+    public ApprovalStatus getApprovalStatus() {
+        return approvalStatus;
+    }
+    
+    public void setApprovalStatus(ApprovalStatus approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+    
+    public Long getApproverAdminId() {
+        return approverAdminId;
+    }
+    
+    public void setApproverAdminId(Long approverAdminId) {
+        this.approverAdminId = approverAdminId;
+    }
+    
+    public LocalDateTime getApprovedAt() {
+        return approvedAt;
+    }
+    
+    public void setApprovedAt(LocalDateTime approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+    
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }

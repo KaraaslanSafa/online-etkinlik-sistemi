@@ -21,4 +21,9 @@ public interface EventService {
     List<EventDTO> getEventsByMaxPrice(Double maxPrice);
     void deleteEvent(Long id);
     void updateEventStatus(Long id, EventStatus status);
+    
+    // Admin Onay Metodları
+    List<EventDTO> getApprovalPendingEvents();
+    void approveEvent(Long eventId, Long adminId);
+    void rejectEvent(Long eventId, String rejectionReason);
 }

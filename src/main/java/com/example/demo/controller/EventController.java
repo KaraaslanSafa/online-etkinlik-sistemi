@@ -1,20 +1,31 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.EventDTO;
-import com.example.demo.entity.EventStatus;
-import com.example.demo.service.EventService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.example.demo.dto.EventDTO;
+import com.example.demo.entity.EventStatus;
+import com.example.demo.service.EventService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/events")
@@ -142,11 +153,41 @@ public class EventController {
     }
     
     @DeleteMapping("/{id}")
-    @Operation(summary = "Etkinliği sil", description = "Belirtilen ID'ye sahip etkinliği siler")
+    @Operation(summary = "Etkinliği sil", description = "Belirtilen ID'ye sahip etkinliği siler (Admin)")
     @ApiResponse(responseCode = "204", description = "Etkinlik başarıyla silindi")
     @ApiResponse(responseCode = "404", description = "Etkinlik bulunamadı")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    // ==================== ADMIN ONAY SİSTEMİ ====================
+    
+    @GetMapping("/approval/pending")
+    @Operation(summary = "Onay bekleyen etkinlikleri getir", description = "Admin tarafından onay bekleyen etkinlikleri listeler")
+    @ApiResponse(responseCode = "200", description = "Etkinlikler başarıyla alındı")
+    public ResponseEntity<List<EventDTO>> getApprovalPendingEvents() {
+        List<EventDTO> events = eventService.getApprovalPendingEvents();
+        return ResponseEntity.ok(events);
+    }
+    
+    @PostMapping("/{id}/approve")
+    @Operation(summary = "Etkinliği onayla", description = "Admin tarafından etkinlik onaylanır")
+    @ApiResponse(responseCode = "200", description = "Etkinlik başarıyla onaylandı")
+    @ApiResponse(responseCode = "404", description = "Etkinlik bulunamadı")
+    public ResponseEntity<Void> approveEvent(@PathVariable Long id, 
+                                            @RequestParam Long adminId) {
+        eventService.approveEvent(id, adminId);
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping("/{id}/reject")
+    @Operation(summary = "Etkinliği reddet", description = "Admin tarafından etkinlik reddedilir")
+    @ApiResponse(responseCode = "200", description = "Etkinlik başarıyla reddedildi")
+    @ApiResponse(responseCode = "404", description = "Etkinlik bulunamadı")
+    public ResponseEntity<Void> rejectEvent(@PathVariable Long id, 
+                                           @RequestParam String rejectionReason) {
+        eventService.rejectEvent(id, rejectionReason);
+        return ResponseEntity.ok().build();
     }
 }

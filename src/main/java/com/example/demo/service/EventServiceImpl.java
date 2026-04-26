@@ -11,8 +11,7 @@ import com.example.demo.entity.Category;
 import com.example.demo.entity.Event;
 import com.example.demo.entity.EventStatus;
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.EventRepository;
+import com.example.demo.entity.ApprovalStatus;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -169,7 +168,7 @@ public class EventServiceImpl implements EventService {
     }
     
     private EventDTO convertToDTO(Event event) {
-        return new EventDTO(
+        EventDTO dto = new EventDTO(
             event.getId(),
             event.getTitle(),
             event.getDescription(),
@@ -184,5 +183,45 @@ public class EventServiceImpl implements EventService {
             event.getStatus().toString(),
             event.getParticipantCount()
         );
+        
+        // Approval Status alanlarını ekle
+        if (event.getApprovalStatus() != null) {
+            dto.setApprovalStatus(event.getApprovalStatus().toString());
+        }
+        dto.setApproverAdminId(event.getApproverAdminId());
+        dto.setApprovedAt(event.getApprovedAt());
+        dto.setRejectionReason(event.getRejectionReason());
+        
+        return dto;
     }
-}
+    
+    @Override
+    public List<EventDTO> getApprovalPendingEvents() {
+        return eventRepository.findAll().stream()
+            .filter(e -> e.getApprovalStatus() == ApprovalStatus.PENDING)
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public void approveEvent(Long eventId, Long adminId) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> ResourceNotFoundException.eventNotFound(eventId));
+        
+        event.setApprovalStatus(ApprovalStatus.APPROVED);
+        event.setApproverAdminId(adminId);
+        event.setApprovedAt(LocalDateTime.now());
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+    }
+    
+    @Override
+    public void rejectEvent(Long eventId, String rejectionReason) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> ResourceNotFoundException.eventNotFound(eventId));
+        
+        event.setApprovalStatus(ApprovalStatus.REJECTED);
+        event.setRejectionReason(rejectionReason);
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+    }
