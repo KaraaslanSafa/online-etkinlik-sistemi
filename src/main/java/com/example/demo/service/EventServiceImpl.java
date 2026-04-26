@@ -12,16 +12,20 @@ import com.example.demo.entity.Event;
 import com.example.demo.entity.EventStatus;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.entity.ApprovalStatus;
+import com.example.demo.repository.EventRepository;
+import com.example.demo.repository.CategoryRepository;
 
 @Service
 public class EventServiceImpl implements EventService {
     
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final AdminService adminService;
     
-    public EventServiceImpl(EventRepository eventRepository, CategoryRepository categoryRepository) {
+    public EventServiceImpl(EventRepository eventRepository, CategoryRepository categoryRepository, AdminService adminService) {
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
+        this.adminService = adminService;
     }
     
     @Override
@@ -159,6 +163,23 @@ public class EventServiceImpl implements EventService {
     }
     
     @Override
+    public void deleteEventByAdmin(Long id, Long adminId) {
+        if (!eventRepository.existsById(id)) {
+            throw ResourceNotFoundException.eventNotFound(id);
+        }
+        
+        // Admin kontrolü
+        if (!adminService.verifyAdminExists(adminId)) {
+            throw new ResourceNotFoundException("Admin bulunamadı");
+        }
+        
+        eventRepository.deleteById(id);
+        
+        // Admin istatistiklerini güncelle
+        adminService.recordDeletion(adminId);
+    }
+    
+    @Override
     public void updateEventStatus(Long id, EventStatus status) {
         Event event = eventRepository.findById(id)
             .orElseThrow(() -> ResourceNotFoundException.eventNotFound(id));
@@ -208,11 +229,19 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> ResourceNotFoundException.eventNotFound(eventId));
         
+        // Admin kontrolü
+        if (!adminService.verifyAdminExists(adminId)) {
+            throw new ResourceNotFoundException("Admin bulunamadı");
+        }
+        
         event.setApprovalStatus(ApprovalStatus.APPROVED);
         event.setApproverAdminId(adminId);
         event.setApprovedAt(LocalDateTime.now());
         event.setUpdatedAt(LocalDateTime.now());
         eventRepository.save(event);
+        
+        // Admin istatistiklerini güncelle
+        adminService.recordApproval(adminId);
     }
     
     @Override
@@ -224,4 +253,10 @@ public class EventServiceImpl implements EventService {
         event.setRejectionReason(rejectionReason);
         event.setUpdatedAt(LocalDateTime.now());
         eventRepository.save(event);
+        
+        // Admin istatistikleri (rejection adminId'si yoksa sadece say artırılır - önceki admin'in bilgisini kullanabilir)
+        if (event.getApproverAdminId() != null && adminService.verifyAdminExists(event.getApproverAdminId())) {
+            adminService.recordRejection(event.getApproverAdminId());
+        }
     }
+}

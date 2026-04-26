@@ -161,6 +161,17 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
     
+    @DeleteMapping("/{id}/admin")
+    @Operation(summary = "Etkinliği admin olarak sil", description = "Admin tarafından etkinlik silinir ve admin istatistikleri güncellenir")
+    @ApiResponse(responseCode = "204", description = "Etkinlik başarıyla silindi")
+    @ApiResponse(responseCode = "404", description = "Etkinlik veya admin bulunamadı")
+    @ApiResponse(responseCode = "403", description = "Geçerli admin ID'si gerekli")
+    public ResponseEntity<Void> deleteEventByAdmin(@PathVariable Long id, 
+                                                   @RequestParam Long adminId) {
+        eventService.deleteEventByAdmin(id, adminId);
+        return ResponseEntity.noContent().build();
+    }
+    
     // ==================== ADMIN ONAY SİSTEMİ ====================
     
     @GetMapping("/approval/pending")

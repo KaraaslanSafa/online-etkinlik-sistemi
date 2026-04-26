@@ -20,6 +20,7 @@ public interface EventService {
     List<EventDTO> getFreeEventsByCity(String city);
     List<EventDTO> getEventsByMaxPrice(Double maxPrice);
     void deleteEvent(Long id);
+    void deleteEventByAdmin(Long id, Long adminId);  // Admin tarafından silme
     void updateEventStatus(Long id, EventStatus status);
     
     // Admin Onay Metodları
