@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/event-reviews")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Etkinlik Yorumları", description = "Etkinlik yorum ve değerlendirme yönetimi API uç noktaları")
 public class EventReviewController {
     

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function EventForm({ onCreated }) {
+function EventForm({ organizerId, onCreated }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -16,6 +16,28 @@ function EventForm({ onCreated }) {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  React.useEffect(() => {
+    fetch('http://localhost:8080/api/categories')
+      .then(res => {
+        if (res.ok) return res.json();
+        return [];
+      })
+      .then(data => {
+        setCategories(data);
+        if (data.length > 0) {
+          setFormData(prev => ({ ...prev, categoryId: data[0].id }));
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,14 +55,33 @@ function EventForm({ onCreated }) {
       return;
     }
 
+    const now = new Date();
+    const start = new Date(formData.startDate);
+    const end = formData.endDate ? new Date(formData.endDate) : null;
+
+    if (start < now) {
+      setMessage('⚠️ Etkinlik başlangıç tarihi geçmiş bir tarih olamaz!');
+      return;
+    }
+
+    if (end && end <= start) {
+      setMessage('⚠️ Etkinlik bitiş tarihi, başlangıç tarihinden önce olamaz!');
+      return;
+    }
+
     setLoading(true);
     try {
+      const payload = {
+        ...formData,
+        organizerId: organizerId || null
+      };
+
       const response = await fetch('http://localhost:8080/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
@@ -127,6 +168,7 @@ function EventForm({ onCreated }) {
             name="startDate"
             value={formData.startDate}
             onChange={handleChange}
+            min={getMinDateTime()}
             required
             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
           />
@@ -138,6 +180,7 @@ function EventForm({ onCreated }) {
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
+            min={formData.startDate || getMinDateTime()}
             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
           />
         </div>
@@ -183,14 +226,27 @@ function EventForm({ onCreated }) {
           />
         </div>
         <div>
-          <label>Kategori ID</label>
-          <input
-            type="number"
+          <label>Kategori *</label>
+          <select
             name="categoryId"
             value={formData.categoryId}
             onChange={handleChange}
             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
+          >
+            {categories && categories.length > 0 ? (
+              categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))
+            ) : (
+              <>
+                <option value="1">Müzik & Konser</option>
+                <option value="2">Spor & Egzersiz</option>
+                <option value="3">Tiyatro & Sanat</option>
+                <option value="4">Eğitim & Seminer</option>
+                <option value="5">Teknoloji & Yazılım</option>
+              </>
+            )}
+          </select>
         </div>
       </div>
 

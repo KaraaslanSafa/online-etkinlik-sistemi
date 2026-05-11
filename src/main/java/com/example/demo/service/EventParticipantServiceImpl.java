@@ -121,6 +121,13 @@ public class EventParticipantServiceImpl implements EventParticipantService {
         EventParticipant eventParticipant = eventParticipantRepository.findById(eventParticipantId)
             .orElseThrow(() -> new ResourceNotFoundException("Event-Participant kaydı bulunamadı: " + eventParticipantId));
         
+        if (status == ParticipationStatus.CANCELLED) {
+            java.time.LocalDateTime eventStart = eventParticipant.getEvent().getStartDate();
+            if (java.time.LocalDateTime.now().isAfter(eventStart)) {
+                throw new IllegalStateException("Etkinlik başladıktan sonra katılım iptal edilemez!");
+            }
+        }
+
         eventParticipant.setStatus(status);
         eventParticipantRepository.save(eventParticipant);
     }

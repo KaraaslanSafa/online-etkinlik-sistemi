@@ -24,7 +24,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admins")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Yöneticiler", description = "Admin yönetimi API uç noktaları")
 public class AdminController {
     

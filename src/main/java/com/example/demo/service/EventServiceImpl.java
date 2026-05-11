@@ -14,6 +14,10 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.entity.ApprovalStatus;
 import com.example.demo.repository.EventRepository;
 import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.EventOrganizerRepository;
+import com.example.demo.entity.User;
+import com.example.demo.entity.EventOrganizer;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -21,11 +25,17 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final AdminService adminService;
+    private final UserRepository userRepository;
+    private final EventOrganizerRepository eventOrganizerRepository;
+    private final EmailService emailService;
     
-    public EventServiceImpl(EventRepository eventRepository, CategoryRepository categoryRepository, AdminService adminService) {
+    public EventServiceImpl(EventRepository eventRepository, CategoryRepository categoryRepository, AdminService adminService, UserRepository userRepository, EventOrganizerRepository eventOrganizerRepository, EmailService emailService) {
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
         this.adminService = adminService;
+        this.userRepository = userRepository;
+        this.eventOrganizerRepository = eventOrganizerRepository;
+        this.emailService = emailService;
     }
     
     @Override
@@ -44,6 +54,24 @@ public class EventServiceImpl implements EventService {
         event.setIsFree(eventDTO.getIsFree());
         event.setCapacity(eventDTO.getCapacity());
         event.setCategory(category);
+        
+        // Link to EventOrganizer if organizerId is provided!
+        if (eventDTO.getOrganizerId() != null) {
+            User user = userRepository.findById(eventDTO.getOrganizerId()).orElse(null);
+            if (user != null) {
+                EventOrganizer organizer = eventOrganizerRepository.findByEmail(user.getEmail()).orElse(null);
+                if (organizer == null) {
+                    organizer = new EventOrganizer();
+                    organizer.setName(user.getFirstName() != null ? user.getFullName() : user.getUsername());
+                    organizer.setEmail(user.getEmail());
+                    organizer.setPhone(user.getPhoneNumber() != null ? user.getPhoneNumber() : "05555555555");
+                    organizer.setBio(user.getBio() != null ? user.getBio() : "Etkinlik Organizatörü");
+                    organizer.setCreatedAt(LocalDateTime.now());
+                    organizer = eventOrganizerRepository.save(organizer);
+                }
+                event.setOrganizer(organizer);
+            }
+        }
         
         Event savedEvent = eventRepository.save(event);
         return convertToDTO(savedEvent);
@@ -70,6 +98,23 @@ public class EventServiceImpl implements EventService {
         event.setIsFree(eventDTO.getIsFree());
         event.setCapacity(eventDTO.getCapacity());
         event.setUpdatedAt(LocalDateTime.now());
+        
+        if (eventDTO.getOrganizerId() != null) {
+            User user = userRepository.findById(eventDTO.getOrganizerId()).orElse(null);
+            if (user != null) {
+                EventOrganizer organizer = eventOrganizerRepository.findByEmail(user.getEmail()).orElse(null);
+                if (organizer == null) {
+                    organizer = new EventOrganizer();
+                    organizer.setName(user.getFirstName() != null ? user.getFullName() : user.getUsername());
+                    organizer.setEmail(user.getEmail());
+                    organizer.setPhone(user.getPhoneNumber() != null ? user.getPhoneNumber() : "05555555555");
+                    organizer.setBio(user.getBio() != null ? user.getBio() : "Etkinlik Organizatörü");
+                    organizer.setCreatedAt(LocalDateTime.now());
+                    organizer = eventOrganizerRepository.save(organizer);
+                }
+                event.setOrganizer(organizer);
+            }
+        }
         
         Event updatedEvent = eventRepository.save(event);
         return convertToDTO(updatedEvent);
@@ -212,6 +257,19 @@ public class EventServiceImpl implements EventService {
         dto.setApproverAdminId(event.getApproverAdminId());
         dto.setApprovedAt(event.getApprovedAt());
         dto.setRejectionReason(event.getRejectionReason());
+
+        // Organizatör alanlarını doldur
+        if (event.getOrganizer() != null) {
+            dto.setOrganizerName(event.getOrganizer().getName());
+            
+            // Kullanıcı ID'si ile eşleştir ki ön yüzdeki organizatör filtrelemesi çalışabilsin
+            User user = userRepository.findByEmail(event.getOrganizer().getEmail()).orElse(null);
+            if (user != null) {
+                dto.setOrganizerId(user.getId());
+            } else {
+                dto.setOrganizerId(event.getOrganizer().getId());
+            }
+        }
         
         return dto;
     }
@@ -242,6 +300,15 @@ public class EventServiceImpl implements EventService {
         
         // Admin istatistiklerini güncelle
         adminService.recordApproval(adminId);
+        
+        // Organizatöre mail gönder
+        if (event.getOrganizer() != null && event.getOrganizer().getEmail() != null) {
+            emailService.sendEventApprovalNotice(
+                event.getOrganizer().getEmail(), 
+                event.getOrganizer().getName(), 
+                event.getTitle()
+            );
+        }
     }
     
     @Override
@@ -257,6 +324,16 @@ public class EventServiceImpl implements EventService {
         // Admin istatistikleri (rejection adminId'si yoksa sadece say artırılır - önceki admin'in bilgisini kullanabilir)
         if (event.getApproverAdminId() != null && adminService.verifyAdminExists(event.getApproverAdminId())) {
             adminService.recordRejection(event.getApproverAdminId());
+        }
+        
+        // Organizatöre mail gönder
+        if (event.getOrganizer() != null && event.getOrganizer().getEmail() != null) {
+            emailService.sendEventRejectionNotice(
+                event.getOrganizer().getEmail(), 
+                event.getOrganizer().getName(), 
+                event.getTitle(),
+                rejectionReason
+            );
         }
     }
 }

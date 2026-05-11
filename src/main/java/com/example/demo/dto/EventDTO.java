@@ -200,4 +200,24 @@ public class EventDTO {
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
     }
+
+    // Organizatör Alanları
+    private Long organizerId;
+    private String organizerName;
+
+    public Long getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(Long organizerId) {
+        this.organizerId = organizerId;
+    }
+
+    public String getOrganizerName() {
+        return organizerName;
+    }
+
+    public void setOrganizerName(String organizerName) {
+        this.organizerName = organizerName;
+    }
 }

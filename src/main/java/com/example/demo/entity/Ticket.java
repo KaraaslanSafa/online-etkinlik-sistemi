@@ -45,13 +45,13 @@ public class Ticket {
     @Column(columnDefinition = "VARCHAR(50) DEFAULT 'STANDARD'")
     private TicketType ticketType = TicketType.STANDARD;
     
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double price = 0.0;
     
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double discountAmount = 0.0;
     
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double finalPrice = 0.0;
     
     @CreationTimestamp

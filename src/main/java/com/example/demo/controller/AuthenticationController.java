@@ -90,6 +90,24 @@ public class AuthenticationController {
         return ResponseEntity.ok("Email başarıyla doğrulandı");
     }
     
+    @PostMapping("/verify-otp")
+    @Operation(summary = "OTP ile Email Doğrulama", description = "Kayıt sırasında gönderilen OTP kodunu doğrula")
+    public ResponseEntity<?> verifyOtp(@RequestBody java.util.Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body("Email ve OTP kodu gereklidir.");
+        }
+        
+        boolean verified = userService.verifyOtp(email, otp);
+        if (verified) {
+            return ResponseEntity.ok("E-posta başarıyla doğrulandı.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Geçersiz veya süresi dolmuş doğrulama kodu.");
+        }
+    }
+    
     @PostMapping("/verify-phone")
     @Operation(summary = "Telefon Doğrulama", description = "Telefon numarasını doğrula")
     public ResponseEntity<String> verifyPhone(@RequestHeader(value = "Authorization") String bearerToken) {

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,10 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.Random;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -35,7 +40,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private RoleRepository roleRepository;
     
     @Autowired
+    @Lazy
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private EmailService emailService;
+    
+    // Geçici OTP deposu: email -> otp_code
+    private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
+    
+    public boolean verifyOtp(String email, String otp) {
+        String storedOtp = otpStorage.get(email);
+        if (storedOtp != null && storedOtp.equals(otp)) {
+            otpStorage.remove(email);
+            
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+            user.setIsEmailVerified(true);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
     
     @Override
     public UserDTO createUser(UserDTO userDTO) {
@@ -55,10 +81,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setUserRole(userDTO.getUserRole() != null ? userDTO.getUserRole() : UserRole.USER);
         user.setIsActive(true);
+        // OTP e-posta doğrulaması için false yapıldı:
         user.setIsEmailVerified(false);
         
         User savedUser = userRepository.save(user);
-        log.info("Yeni kullanıcı oluşturuldu: {}", savedUser.getUsername());
+        
+        // OTP Üret ve Gönder
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        otpStorage.put(user.getEmail(), otp);
+        emailService.sendOtpEmail(user.getEmail(), otp);
+        
+        log.info("Yeni kullanıcı oluşturuldu ve OTP gönderildi: {}", savedUser.getUsername());
         
         return convertToDTO(savedUser);
     }
@@ -119,6 +152,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         if (userDTO.getIsActive() != null) {
             user.setIsActive(userDTO.getIsActive());
+        }
+        if (userDTO.getUserRole() != null) {
+            user.setUserRole(userDTO.getUserRole());
         }
         
         user.setUpdatedAt(LocalDateTime.now());

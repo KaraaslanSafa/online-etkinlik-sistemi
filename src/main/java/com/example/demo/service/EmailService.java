@@ -122,4 +122,91 @@ public class EmailService {
                "Saygılarımızla,\n" +
                "Etkinlik Yönetim Sistemi";
     }
+
+    /**
+     * E-posta doğrulama için OTP gönder
+     */
+    public void sendOtpEmail(String email, String otpCode) {
+        logger.info("\n===============================================\n" +
+                    "📧 SIMULATED EMAIL (OTP VERIFICATION)\n" +
+                    "TO: " + email + "\n" +
+                    "SUBJECT: E-Posta Doğrulama Kodunuz\n" +
+                    "BODY: Kayıt işleminizi tamamlamak için doğrulama kodunuz: " + otpCode + "\n" +
+                    "===============================================\n");
+        
+        try {
+            if (mailSender == null) {
+                return;
+            }
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("E-Posta Doğrulama Kodunuz");
+            message.setText("Etkinlik Yönetim Sistemine hoş geldiniz.\n\n" +
+                            "Kayıt işleminizi tamamlamak için doğrulama kodunuz: " + otpCode + "\n\n" +
+                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
+            message.setFrom("noreply@eventmanagement.com");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error("OTP E-posta gönderiminde hata oluştu: " + email, e);
+        }
+    }
+
+    /**
+     * Organizatöre etkinlik onay e-postası gönder
+     */
+    public void sendEventApprovalNotice(String organizerEmail, String organizerName, String eventTitle) {
+        logger.info("\n===============================================\n" +
+                    "📧 SIMULATED EMAIL (EVENT APPROVED)\n" +
+                    "TO: " + organizerEmail + "\n" +
+                    "SUBJECT: Etkinliğiniz Onaylandı - " + eventTitle + "\n" +
+                    "BODY: Tebrikler! Etkinliğiniz admin tarafından onaylanmış ve yayına alınmıştır.\n" +
+                    "===============================================\n");
+        
+        try {
+            if (mailSender == null) {
+                return;
+            }
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(organizerEmail);
+            message.setSubject("Etkinliğiniz Onaylandı - " + eventTitle);
+            message.setText("Sayın " + organizerName + ",\n\n" +
+                            "Tebrikler! '" + eventTitle + "' adlı etkinliğiniz admin tarafından onaylanmış ve yayına alınmıştır.\n\n" +
+                            "Müşteriler artık bilet satın alabilirler.\n\n" +
+                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
+            message.setFrom("noreply@eventmanagement.com");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error("Onay e-posta gönderiminde hata: " + organizerEmail, e);
+        }
+    }
+
+    /**
+     * Organizatöre etkinlik ret e-postası gönder
+     */
+    public void sendEventRejectionNotice(String organizerEmail, String organizerName, String eventTitle, String reason) {
+        logger.info("\n===============================================\n" +
+                    "📧 SIMULATED EMAIL (EVENT REJECTED)\n" +
+                    "TO: " + organizerEmail + "\n" +
+                    "SUBJECT: Etkinliğiniz Reddedildi - " + eventTitle + "\n" +
+                    "BODY: Etkinliğiniz aşağıdaki sebeple reddedilmiştir: " + reason + "\n" +
+                    "===============================================\n");
+        
+        try {
+            if (mailSender == null) {
+                return;
+            }
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(organizerEmail);
+            message.setSubject("Etkinliğiniz Reddedildi - " + eventTitle);
+            message.setText("Sayın " + organizerName + ",\n\n" +
+                            "Maalesef '" + eventTitle + "' adlı etkinliğiniz admin tarafından reddedilmiştir.\n\n" +
+                            "Red Sebebi: " + reason + "\n\n" +
+                            "Lütfen gerekli düzenlemeleri yaparak tekrar onayabaşvurun.\n\n" +
+                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
+            message.setFrom("noreply@eventmanagement.com");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error("Ret e-posta gönderiminde hata: " + organizerEmail, e);
+        }
+    }
 }

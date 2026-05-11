@@ -24,13 +24,13 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     @Query("SELECT c FROM Campaign c WHERE c.isActive = true AND c.startDate <= :now AND c.endDate >= :now")
     List<Campaign> findCurrentlyActiveCampaigns(@Param("now") LocalDateTime now);
     
-    @Query("SELECT c FROM Campaign c WHERE c.organizerId = :organizerId AND c.isActive = true")
+    @Query("SELECT c FROM Campaign c WHERE c.organizer.id = :organizerId AND c.isActive = true")
     List<Campaign> findActiveByOrganizerId(@Param("organizerId") Long organizerId);
     
     @Query("SELECT c FROM Campaign c WHERE c.campaignType = :type AND c.isActive = true ORDER BY c.startDate DESC")
     List<Campaign> findByCampaignType(@Param("type") String campaignType);
     
-    @Query("SELECT c FROM Campaign c WHERE c.eventId = :eventId AND c.isActive = true")
+    @Query("SELECT c FROM Campaign c WHERE c.event.id = :eventId AND c.isActive = true")
     List<Campaign> findActiveByEventId(@Param("eventId") Long eventId);
     
     @Query("SELECT c FROM Campaign c WHERE c.maxParticipants > c.usedCount AND c.isActive = true AND c.startDate <= :now AND c.endDate >= :now")

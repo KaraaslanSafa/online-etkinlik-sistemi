@@ -100,6 +100,9 @@ public class User implements UserDetails {
     @Override
     public Set<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
+        if (userRole != null) {
+            authorities.add(() -> "ROLE_" + userRole.name());
+        }
         for (Role role : roles) {
             authorities.add(() -> "ROLE_" + role.getName());
             for (Permission permission : role.getPermissions()) {
@@ -126,7 +129,7 @@ public class User implements UserDetails {
     
     @Override
     public boolean isEnabled() {
-        return isActive && isEmailVerified;
+        return isActive;
     }
     
     @Override

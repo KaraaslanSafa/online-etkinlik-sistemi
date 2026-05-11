@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/event-participants")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Etkinlik Katılımcıları", description = "Etkinlik katılımcı yönetimi API uç noktaları")
 public class EventParticipantController {
     

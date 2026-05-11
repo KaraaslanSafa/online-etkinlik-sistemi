@@ -47,10 +47,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/events/**").permitAll()
+                .requestMatchers("/api/categories/**").permitAll()
+                .requestMatchers("/api/participants/**").permitAll()
+                .requestMatchers("/api/event-participants/**").permitAll()
+                .requestMatchers("/api/event-reviews/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 .requestMatchers("/api/admins/**").hasRole("ADMIN")
-                .requestMatchers("/api/events/*/approve", "/api/events/*/reject").hasRole("ADMIN")
-                .requestMatchers("/api/events/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .httpBasic(basic -> {});

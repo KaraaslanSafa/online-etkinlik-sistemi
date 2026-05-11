@@ -18,7 +18,7 @@ public interface OrganizerRatingRepository extends JpaRepository<OrganizerRating
     Optional<OrganizerRating> findByOrganizerIdAndParticipantId(Long organizerId, Long participantId);
     boolean existsByOrganizerIdAndParticipantId(Long organizerId, Long participantId);
     
-    @Query("SELECT AVG(CAST(o.rating AS DECIMAL(3,2))) FROM OrganizerRating o WHERE o.organizer.id = :organizerId")
+    @Query("SELECT AVG(o.rating) FROM OrganizerRating o WHERE o.organizer.id = :organizerId")
     Double getAverageRatingByOrganizerId(@Param("organizerId") Long organizerId);
     
     @Query("SELECT COUNT(o) FROM OrganizerRating o WHERE o.organizer.id = :organizerId")

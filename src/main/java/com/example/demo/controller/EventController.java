@@ -22,14 +22,13 @@ import com.example.demo.entity.EventStatus;
 import com.example.demo.service.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Etkinlikler", description = "Etkinlik yönetimi API uç noktaları")
 public class EventController {
     

@@ -31,6 +31,7 @@ public interface UserService {
     void verifyEmail(Long userId);
     void verifyPhone(Long userId);
     boolean isEmailVerified(Long userId);
+    boolean verifyOtp(String email, String otp);
     
     // Authentication
     UserDetails loadUserByUsername(String username);

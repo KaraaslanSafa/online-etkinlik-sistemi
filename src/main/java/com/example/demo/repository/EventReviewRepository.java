@@ -18,7 +18,7 @@ public interface EventReviewRepository extends JpaRepository<EventReview, Long> 
     Optional<EventReview> findByEventIdAndParticipantId(Long eventId, Long participantId);
     boolean existsByEventIdAndParticipantId(Long eventId, Long participantId);
     
-    @Query("SELECT AVG(CAST(e.rating AS DECIMAL(3,2))) FROM EventReview e WHERE e.event.id = :eventId")
+    @Query("SELECT AVG(e.rating) FROM EventReview e WHERE e.event.id = :eventId")
     Double getAverageRatingByEventId(@Param("eventId") Long eventId);
     
     @Query("SELECT e FROM EventReview e WHERE e.event.id = :eventId AND e.rating >= :minRating ORDER BY e.createdAt DESC")
