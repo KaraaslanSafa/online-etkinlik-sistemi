@@ -129,6 +129,11 @@ public class User implements UserDetails {
         return isActive && isEmailVerified;
     }
     
+    @Override
+    public String getUsername() {
+        return username;
+    }
+    
     public String getFullName() {
         if (firstName != null && lastName != null) {
             return firstName + " " + lastName;
