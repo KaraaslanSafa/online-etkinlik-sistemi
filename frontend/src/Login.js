@@ -248,8 +248,8 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
                             />
                             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>E-posta adresinize ({formData.email}) gönderilen 6 haneli kodu girin.</small>
                         </div>
-                        <button type="submit" className="login-btn primary-btn" disabled={loading}>
-                            {loading ? <span className="spinner"></span> : 'Doğrula ve Tamamla'}
+                        <button type="submit" className="btn-login" disabled={loading}>
+                            {loading ? <span className="spinner"></span> : '✨ Doğrula ve Tamamla'}
                         </button>
                     </form>
                 ) : (
