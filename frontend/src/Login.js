@@ -52,15 +52,6 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
             if (response.ok) {
                 const data = await response.json();
                 
-                // Check if user role matches the context role
-                const userRole = data.user ? data.user.userRole : 'USER';
-                if (role === 'ADMIN' && userRole !== 'ADMIN') {
-                    throw new Error('Yetkisiz Erişim: Bu hesaba ait yönetici yetkisi bulunmuyor.');
-                }
-                if (role === 'ORGANIZER' && userRole !== 'ORGANIZER' && userRole !== 'ADMIN') {
-                    throw new Error('Yetkisiz Erişim: Bu hesap bir organizatör hesabı değildir.');
-                }
-
                 localStorage.setItem("token", data.accessToken);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 setSuccess('🎉 Giriş başarılı! Yönlendiriliyorsunuz...');
@@ -245,19 +236,15 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
     };
 
     const getRoleTitle = () => {
-        switch (role) {
-            case 'ADMIN': return 'Yönetici';
-            case 'ORGANIZER': return 'Organizatör';
-            default: return 'Müşteri / Katılımcı';
+        if (isRegisterMode) {
+            return role === 'ORGANIZER' ? 'Organizatör Kaydı' : 'Müşteri Kaydı';
         }
+        return 'Giriş Yap';
     };
 
     const getRoleIcon = () => {
-        switch (role) {
-            case 'ADMIN': return '🛡️';
-            case 'ORGANIZER': return '💼';
-            default: return '👤';
-        }
+        if (isRegisterMode && role === 'ORGANIZER') return '💼';
+        return '🔑';
     };
 
     return (
@@ -276,22 +263,22 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
                     </p>
                 </div>
 
-                {/* Role Switcher tabs (Only when NOT in register mode and NOT locked in ADMIN context) */}
-                {!isRegisterMode && role !== 'ADMIN' && (
-                    <div className="login-role-selector">
+                {/* Role selection is only relevant for registration now */}
+                {isRegisterMode && (
+                    <div className="login-role-selector" style={{ marginBottom: '20px' }}>
                         <button 
                             type="button" 
                             className={`role-sub-btn ${role === 'USER' ? 'active' : ''}`}
                             onClick={() => setRole('USER')}
                         >
-                            👤 Müşteri
+                            👤 Müşteri Kaydı
                         </button>
                         <button 
                             type="button" 
                             className={`role-sub-btn ${role === 'ORGANIZER' ? 'active' : ''}`}
                             onClick={() => setRole('ORGANIZER')}
                         >
-                            💼 Organizatör
+                            💼 Organizatör Kaydı
                         </button>
                     </div>
                 )}

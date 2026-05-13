@@ -862,15 +862,14 @@ function App() {
 
         {/* Portal Switcher Tabs */}
         <div className="portal-tabs">
-          {(!currentUser || currentUser.userRole === 'USER') && (
-            <button
-              className={`portal-tab-btn ${activePortal === 'customer' ? 'active' : ''}`}
-              onClick={() => { setActivePortal('customer'); handleBackToEvents(); }}
-            >
-              👤 Müşteri Portalı
-            </button>
-          )}
-          {(!currentUser || currentUser.userRole === 'ORGANIZER') && (
+          <button
+            className={`portal-tab-btn ${activePortal === 'customer' ? 'active' : ''}`}
+            onClick={() => { setActivePortal('customer'); handleBackToEvents(); }}
+          >
+            👤 Müşteri Portalı
+          </button>
+          
+          {(currentUser && (currentUser.userRole === 'ORGANIZER' || currentUser.userRole === 'ADMIN')) && (
             <button
               className={`portal-tab-btn ${activePortal === 'organizer' ? 'active' : ''}`}
               onClick={() => { setActivePortal('organizer'); handleBackToEvents(); }}
@@ -878,7 +877,8 @@ function App() {
               💼 Organizatör Portalı
             </button>
           )}
-          {(!currentUser || currentUser.userRole === 'ADMIN') && (
+
+          {(currentUser && currentUser.userRole === 'ADMIN') && (
             <button
               className={`portal-tab-btn ${activePortal === 'admin' ? 'active' : ''}`}
               onClick={() => { setActivePortal('admin'); handleBackToEvents(); }}
