@@ -52,6 +52,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // Geçici Kullanıcı deposu: email -> UserDTO
     private final Map<String, UserDTO> pendingRegistrations = new ConcurrentHashMap<>();
     
+    // Geçici Şifre Sıfırlama deposu: email -> otp_code
+    private final Map<String, String> resetOtpStorage = new ConcurrentHashMap<>();
+    
+    @Override
+    public String forgotPassword(String email) {
+        userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Bu e-posta adresine ait kullanıcı bulunamadı."));
+            
+        // OTP Üret ve Gönder
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        resetOtpStorage.put(email, otp);
+        emailService.sendOtpEmail(email, otp); // Email gönderiyoruz
+        
+        log.info("Şifre sıfırlama için OTP üretildi: {}", email);
+        return otp; // Dev ortamında frontend'e göstermek için geri dönüyoruz
+    }
+    
+    @Override
+    public void resetPassword(String email, String otp, String newPassword) {
+        String storedOtp = resetOtpStorage.get(email);
+        if (storedOtp != null && storedOtp.equals(otp)) {
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
+                
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            resetOtpStorage.remove(email);
+            log.info("Kullanıcı şifresi başarıyla sıfırlandı: {}", email);
+        } else {
+            throw new IllegalArgumentException("Geçersiz veya süresi dolmuş doğrulama kodu.");
+        }
+    }
+    
     public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStorage.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {

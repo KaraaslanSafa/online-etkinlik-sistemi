@@ -121,7 +121,45 @@ public class AuthenticationController {
     @Operation(summary = "Şifre Değiştir", description = "Kullanıcı şifresini değiştir")
     public ResponseEntity<String> changePassword(
             @Valid @RequestBody ChangePasswordRequest request) {
-        // TODO: Şifre değiştirme implementasyonu
+        // TODO: Mevcut kullanıcı şifre değiştirme implementasyonu
         return ResponseEntity.ok("Şifre başarıyla değiştirildi");
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Şifremi Unuttum", description = "Şifre sıfırlama kodu talep et")
+    public ResponseEntity<?> forgotPassword(@RequestBody java.util.Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Email adresi gereklidir.");
+        }
+        try {
+            String otp = userService.forgotPassword(email);
+            // Geliştirici ortamı için OTP'yi geri dönüyoruz, gerçek sistemde sadece başarı mesajı dönülmelidir
+            return ResponseEntity.ok(java.util.Map.of(
+                "message", "Şifre sıfırlama kodu e-postanıza gönderildi.",
+                "devOtp", otp
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @PostMapping("/reset-password")
+    @Operation(summary = "Şifreyi Sıfırla", description = "OTP kodu ile şifreyi sıfırla")
+    public ResponseEntity<?> resetPassword(@RequestBody java.util.Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+        
+        if (email == null || otp == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Email, OTP ve yeni şifre gereklidir.");
+        }
+        
+        try {
+            userService.resetPassword(email, otp, newPassword);
+            return ResponseEntity.ok(java.util.Map.of("message", "Şifreniz başarıyla sıfırlandı. Yeni şifrenizle giriş yapabilirsiniz."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -27,11 +27,13 @@ public interface UserService {
     Page<UserDTO> getUsersByRole(UserRole role, Pageable pageable);
     Page<UserDTO> searchUsers(String name, Pageable pageable);
     
-    // Verification
+    // Verification & Password Reset
     void verifyEmail(Long userId);
     void verifyPhone(Long userId);
     boolean isEmailVerified(Long userId);
     boolean verifyOtp(String email, String otp);
+    String forgotPassword(String email);
+    void resetPassword(String email, String otp, String newPassword);
     
     // Authentication
     UserDetails loadUserByUsername(String username);

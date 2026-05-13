@@ -40,6 +40,11 @@ public class JwtTokenProvider {
         return createToken(claims, userDetails.getUsername(), jwtExpirationMs);
     }
     
+    public String generateTokenWithCustomExpiration(UserDetails userDetails, long customExpirationMs) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername(), customExpirationMs);
+    }
+    
     public String generateTokenWithClaims(UserDetails userDetails, Map<String, Object> claims) {
         claims.put("roles", userDetails.getAuthorities());
         return createToken(claims, userDetails.getUsername(), jwtExpirationMs);
@@ -47,6 +52,10 @@ public class JwtTokenProvider {
     
     public String generateRefreshToken(UserDetails userDetails) {
         return createToken(new HashMap<>(), userDetails.getUsername(), refreshTokenExpirationMs);
+    }
+    
+    public String generateRefreshTokenWithCustomExpiration(UserDetails userDetails, long customExpirationMs) {
+        return createToken(new HashMap<>(), userDetails.getUsername(), customExpirationMs);
     }
     
     private String createToken(Map<String, Object> claims, String subject, long expirationTime) {

@@ -53,14 +53,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user.setLastLoginAt(LocalDateTime.now());
             userRepository.save(user);
             
-            String accessToken = jwtTokenProvider.generateToken(user);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+            String accessToken;
+            String refreshToken;
+            long expiresIn;
+            
+            if (Boolean.TRUE.equals(loginRequest.getRememberMe())) {
+                // Beni hatırla seçiliyse 30 gün (2592000000 ms)
+                expiresIn = 30L * 24 * 60 * 60 * 1000;
+                accessToken = jwtTokenProvider.generateTokenWithCustomExpiration(user, expiresIn);
+                refreshToken = jwtTokenProvider.generateRefreshTokenWithCustomExpiration(user, expiresIn * 2);
+            } else {
+                // Varsayılan (1 gün)
+                expiresIn = 86400000L;
+                accessToken = jwtTokenProvider.generateToken(user);
+                refreshToken = jwtTokenProvider.generateRefreshToken(user);
+            }
             
             UserDTO userDTO = convertToDTO(user);
             
             log.info("Kullanıcı başarıyla giriş yaptı: {}", loginRequest.getUsername());
             
-            return new LoginResponse(accessToken, refreshToken, 86400000L, userDTO);
+            return new LoginResponse(accessToken, refreshToken, expiresIn, userDTO);
         } catch (RuntimeException ex) {
             // Yukarıda fırlattığımız özel hatayı (OTP hatası vb.) yakala ve aynen fırlat
             if (ex.getMessage().contains("doğrulayın")) {
