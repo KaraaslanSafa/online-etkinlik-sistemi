@@ -71,13 +71,13 @@ public class Ticket {
     @Column(length = 500)
     private String qrCodeUrl;
     
-    @Column(columnDefinition = "BIT DEFAULT 0")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isUsed = false;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime usedAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime expiresAt;
     
     @Column(length = 500)

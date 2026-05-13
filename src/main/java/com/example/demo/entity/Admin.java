@@ -47,10 +47,10 @@ public class Admin {
     @Column(nullable = false)
     private String fullName;
     
-    @Column(columnDefinition = "BIT DEFAULT 1")
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
     
-    @Column(columnDefinition = "BIT DEFAULT 0")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isSuperAdmin = false;
     
     // İstatistikler
@@ -66,10 +66,10 @@ public class Admin {
     @CreationTimestamp
     private LocalDateTime createdAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoginAt;
     
     @Column(length = 500)

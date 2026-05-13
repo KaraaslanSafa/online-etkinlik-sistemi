@@ -53,7 +53,7 @@ public class Event {
     @Column(name = "price_amount")
     private Double price = 0.0;
     
-    @Column(columnDefinition = "BIT DEFAULT 0")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isFree = false;
     
     @Column(nullable = false)
@@ -94,16 +94,16 @@ public class Event {
     @Column(columnDefinition = "BIGINT")
     private Long approverAdminId;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime approvedAt;
     
     @Column(length = 500)
     private String rejectionReason;
     
-    @Column(nullable = false, columnDefinition = "DATETIME DEFAULT GETDATE()")
+    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
     private LocalDateTime createdAt = LocalDateTime.now();
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
     
     public Event() {

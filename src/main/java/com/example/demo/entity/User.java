@@ -60,13 +60,13 @@ public class User implements UserDetails {
     @Column(length = 1000)
     private String bio;
     
-    @Column(columnDefinition = "BIT DEFAULT 1")
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
     
-    @Column(columnDefinition = "BIT DEFAULT 0")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isEmailVerified = false;
     
-    @Column(columnDefinition = "BIT DEFAULT 0")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isPhoneVerified = false;
     
     @Enumerated(EnumType.STRING)
@@ -76,13 +76,13 @@ public class User implements UserDetails {
     @CreationTimestamp
     private LocalDateTime createdAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoginAt;
     
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
     
     @Column(columnDefinition = "VARCHAR(500)")
