@@ -36,12 +36,12 @@ function AddParticipantForm({ eventId, onRegistered }) {
     try {
       let participant = null;
       const email = encodeURIComponent(formData.email.trim());
-      const searchResponse = await fetch(`http://localhost:8080/api/participants/email/${email}`);
+      const searchResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants/email/${email}`);
 
       if (searchResponse.ok) {
         participant = await searchResponse.json();
       } else if (searchResponse.status === 404) {
-        const createResponse = await fetch('http://localhost:8080/api/participants', {
+        const createResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ function AddParticipantForm({ eventId, onRegistered }) {
       }
 
       const registerResponse = await fetch(
-        `http://localhost:8080/api/event-participants/register?eventId=${eventId}&participantId=${participant.id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/event-participants/register?eventId=${eventId}&participantId=${participant.id}`,
         {
           method: 'POST',
         }

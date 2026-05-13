@@ -9,7 +9,7 @@ function ParticipantList({ eventId, onUpdate }) {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/event-participants/event/${eventId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-participants/event/${eventId}`);
       const data = await response.json();
       setParticipants(data);
     } catch (error) {
@@ -30,7 +30,7 @@ function ParticipantList({ eventId, onUpdate }) {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/event-participants/unregister?eventId=${eventId}&participantId=${participantId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/event-participants/unregister?eventId=${eventId}&participantId=${participantId}`,
         { method: 'DELETE' }
       );
 

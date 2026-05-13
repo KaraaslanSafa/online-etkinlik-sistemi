@@ -12,7 +12,7 @@ function EventList({ onSelect, onDelete, refreshTrigger }) {
   const fetchApprovedEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/events');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events`);
       const data = await response.json();
       const approvedEvents = data.filter((e) => e.approvalStatus === 'APPROVED');
       setEvents(approvedEvents);
@@ -27,7 +27,7 @@ function EventList({ onSelect, onDelete, refreshTrigger }) {
     if (!window.confirm('Etkinliği silmek istediğinize emin misiniz?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events/${eventId}`, {
         method: 'DELETE',
       });
       if (response.ok) {

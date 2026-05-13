@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.ChangePasswordRequest;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.UserDTO;
@@ -123,13 +124,4 @@ public class AuthenticationController {
         // TODO: Şifre değiştirme implementasyonu
         return ResponseEntity.ok("Şifre başarıyla değiştirildi");
     }
-}
-
-/**
- * ChangePasswordRequest - Şifre Değiştirme İsteği
- */
-class ChangePasswordRequest {
-    public String oldPassword;
-    public String newPassword;
-    public String confirmPassword;
 }

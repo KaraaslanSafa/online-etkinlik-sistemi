@@ -105,7 +105,7 @@ function App() {
   const fetchAllEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/events');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events`);
       if (response.ok) {
         const data = await response.json();
         setEvents(data);
@@ -147,7 +147,7 @@ function App() {
   const fetchPromotions = async () => {
     if (!currentUser) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/campaigns/organizer/${currentUser.id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/campaigns/organizer/${currentUser.id}`, {
         headers: getAuthHeaders()
       });
       if (res.ok) {
@@ -161,7 +161,7 @@ function App() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/categories');
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/categories`);
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -175,7 +175,7 @@ function App() {
     if (e) e.preventDefault();
     if (!newCategoryName.trim()) return;
     try {
-      const res = await fetch('http://localhost:8080/api/categories', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/categories`, {
         method: 'POST',
         headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ name: newCategoryName.trim() })
@@ -198,7 +198,7 @@ function App() {
   const handleDeleteCategory = async (categoryId) => {
     if (!window.confirm("Bu kategoriyi silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/categories/${categoryId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/categories/${categoryId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
@@ -219,7 +219,7 @@ function App() {
   const handleDeactivatePromo = async (promoId) => {
     if (!window.confirm("Bu promosyon kodunu kapatmak/iptal etmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/campaigns/${promoId}/deactivate`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/campaigns/${promoId}/deactivate`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -239,7 +239,7 @@ function App() {
 
   const handleMarkReviewHelpful = async (reviewId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/event-reviews/${reviewId}/mark-helpful`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/${reviewId}/mark-helpful`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -253,7 +253,7 @@ function App() {
   const handleDeleteReview = async (reviewId) => {
     if (!window.confirm("Bu yorumu silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/event-reviews/${reviewId}?participantId=1`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/${reviewId}?participantId=1`, {
         method: 'DELETE'
       });
       if (res.status === 200 || res.status === 204) {
@@ -289,7 +289,7 @@ function App() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/campaigns', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/campaigns`, {
         method: 'POST',
         headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
@@ -337,7 +337,7 @@ function App() {
 
     try {
       const headers = getAuthHeaders();
-      const res = await fetch('http://localhost:8080/api/users?size=100', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users?size=100`, {
         headers: headers
       });
       if (res.ok) {
@@ -376,7 +376,7 @@ function App() {
         userRole: newRole
       };
 
-      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users/${userId}`, {
         method: 'PUT',
         headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(updatedUserPayload)
@@ -404,7 +404,7 @@ function App() {
     }
     if (!window.confirm("Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users/${userId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
@@ -427,7 +427,7 @@ function App() {
   const handleDeleteEvent = async (eventId) => {
     if (!window.confirm("Bu etkinliği sistemden kalıcı olarak silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events/${eventId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
@@ -455,7 +455,7 @@ function App() {
     }
     setCouponMsg("Kupon sorgulanıyor...");
     try {
-      const res = await fetch(`http://localhost:8080/api/campaigns/code/${couponCodeInput.trim().toUpperCase()}`);
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/campaigns/code/${couponCodeInput.trim().toUpperCase()}`);
       if (res.ok) {
         const promo = await res.json();
         if (!promo.isActive || !promo.isCurrentlyActive) {
@@ -499,7 +499,7 @@ function App() {
     try {
       // 1. Katılımcıyı email ile getir
       const emailEncoded = encodeURIComponent(targetEmail);
-      const pRes = await fetch(`http://localhost:8080/api/participants/email/${emailEncoded}`);
+      const pRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants/email/${emailEncoded}`);
 
       if (pRes.status === 404) {
         setSearchMessage('Bu e-posta adresine ait bilet kaydı bulunamadı.');
@@ -511,7 +511,7 @@ function App() {
         const participant = await pRes.json();
 
         // 2. Katılımcının etkinliklerini getir
-        const regRes = await fetch(`http://localhost:8080/api/event-participants/participant/${participant.id}`);
+        const regRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-participants/participant/${participant.id}`);
         if (regRes.ok) {
           const regs = await regRes.json();
           setCustomerRegistrations(regs);
@@ -543,7 +543,7 @@ function App() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/event-participants/${regId}/status?status=CANCELLED`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-participants/${regId}/status?status=CANCELLED`, {
         method: 'PATCH'
       });
       if (res.ok) {
@@ -583,13 +583,13 @@ function App() {
     try {
       let participant = null;
       const emailEncoded = encodeURIComponent(regForm.email.trim());
-      const searchRes = await fetch(`http://localhost:8080/api/participants/email/${emailEncoded}`);
+      const searchRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants/email/${emailEncoded}`);
 
       if (searchRes.ok) {
         participant = await searchRes.json();
       } else if (searchRes.status === 404) {
         // Yeni katılımcı oluştur
-        const createRes = await fetch('http://localhost:8080/api/participants', {
+        const createRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -609,7 +609,7 @@ function App() {
 
       // Etkinliğe kaydet
       const registerRes = await fetch(
-        `http://localhost:8080/api/event-participants/register?eventId=${selectedEvent.id}&participantId=${participant.id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/event-participants/register?eventId=${selectedEvent.id}&participantId=${participant.id}`,
         { method: 'POST' }
       );
 
@@ -646,7 +646,7 @@ function App() {
 
   const fetchReviews = async (eventId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/event-reviews/event/${eventId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/event/${eventId}`);
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -673,7 +673,7 @@ function App() {
       const emailEncoded = encodeURIComponent(email);
 
       // Search if participant exists
-      const searchRes = await fetch(`http://localhost:8080/api/participants/email/${emailEncoded}`);
+      const searchRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants/email/${emailEncoded}`);
       if (searchRes.ok) {
         participant = await searchRes.json();
       } else {
@@ -682,7 +682,7 @@ function App() {
         const firstName = names[0];
         const lastName = names.slice(1).join(' ') || 'Değerlendiren';
 
-        const createRes = await fetch('http://localhost:8080/api/participants', {
+        const createRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -709,7 +709,7 @@ function App() {
         comment: newReview.comment.trim()
       });
 
-      const response = await fetch(`http://localhost:8080/api/event-reviews?${params.toString()}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews?${params.toString()}`, {
         method: 'POST'
       });
 

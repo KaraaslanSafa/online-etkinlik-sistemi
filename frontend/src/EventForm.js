@@ -19,7 +19,7 @@ function EventForm({ organizerId, onCreated }) {
   const [categories, setCategories] = useState([]);
 
   React.useEffect(() => {
-    fetch('http://localhost:8080/api/categories')
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/categories`)
       .then(res => {
         if (res.ok) return res.json();
         return [];
@@ -76,7 +76,7 @@ function EventForm({ organizerId, onCreated }) {
         organizerId: organizerId || null
       };
 
-      const response = await fetch('http://localhost:8080/api/events', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

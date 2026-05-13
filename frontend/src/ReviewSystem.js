@@ -15,7 +15,7 @@ const ReviewSystem = ({ eventId }) => {
 
     const fetchReviews = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/event-reviews/event/${eventId}`);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/event/${eventId}`);
             if (response.ok) {
                 const data = await response.json();
                 setReviews(data);
@@ -28,7 +28,7 @@ const ReviewSystem = ({ eventId }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:8080/api/event-reviews', {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const ReviewSystem = ({ eventId }) => {
 
     const handleHelpful = async (reviewId) => {
         try {
-            await fetch(`http://localhost:8080/api/event-reviews/${reviewId}/mark-helpful`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/${reviewId}/mark-helpful`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
