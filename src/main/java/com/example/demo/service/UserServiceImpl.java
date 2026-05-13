@@ -49,15 +49,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // Geçici OTP deposu: email -> otp_code
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     
+    // Geçici Kullanıcı deposu: email -> UserDTO
+    private final Map<String, UserDTO> pendingRegistrations = new ConcurrentHashMap<>();
+    
     public boolean verifyOtp(String email, String otp) {
         String storedOtp = otpStorage.get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
             otpStorage.remove(email);
             
-            User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
-            user.setIsEmailVerified(true);
-            userRepository.save(user);
+            // Geçici hafızada bu maile ait kayıt var mı?
+            UserDTO pendingUserDTO = pendingRegistrations.get(email);
+            if (pendingUserDTO != null) {
+                // Varsa artık kalıcı olarak veritabanına ekle
+                User user = new User();
+                user.setUsername(pendingUserDTO.getUsername());
+                user.setEmail(pendingUserDTO.getEmail());
+                user.setPassword(passwordEncoder.encode(pendingUserDTO.getPassword()));
+                user.setFirstName(pendingUserDTO.getFirstName());
+                user.setLastName(pendingUserDTO.getLastName());
+                user.setPhoneNumber(pendingUserDTO.getPhoneNumber());
+                user.setUserRole(pendingUserDTO.getUserRole() != null ? pendingUserDTO.getUserRole() : UserRole.USER);
+                user.setIsActive(true);
+                user.setIsEmailVerified(true);
+                
+                userRepository.save(user);
+                pendingRegistrations.remove(email);
+                log.info("Geçici kayıt doğrulandı ve kalıcı olarak eklendi: {}", email);
+            } else {
+                // Hafızada yoksa zaten veritabanındadır (Örn: şifremi unuttum / mail onaylama)
+                userRepository.findByEmail(email).ifPresent(user -> {
+                    user.setIsEmailVerified(true);
+                    userRepository.save(user);
+                });
+            }
             return true;
         }
         return false;
@@ -72,28 +96,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new IllegalArgumentException("Bu email zaten mevcut");
         }
         
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setUserRole(userDTO.getUserRole() != null ? userDTO.getUserRole() : UserRole.USER);
-        user.setIsActive(true);
-        // OTP e-posta doğrulaması için false yapıldı:
-        user.setIsEmailVerified(false);
-        
-        User savedUser = userRepository.save(user);
+        // Veritabanına kaydetmek yerine geçici RAM belleğe kaydediyoruz
+        pendingRegistrations.put(userDTO.getEmail(), userDTO);
         
         // OTP Üret ve Gönder
         String otp = String.format("%06d", new Random().nextInt(999999));
-        otpStorage.put(user.getEmail(), otp);
-        emailService.sendOtpEmail(user.getEmail(), otp);
+        otpStorage.put(userDTO.getEmail(), otp);
+        emailService.sendOtpEmail(userDTO.getEmail(), otp);
         
-        log.info("Yeni kullanıcı oluşturuldu ve OTP gönderildi: {}", savedUser.getUsername());
+        log.info("Kullanıcı kaydı geçici hafızaya alındı ve OTP gönderildi: {}", userDTO.getUsername());
         
-        return convertToDTO(savedUser);
+        // Şimdilik ID'siz UserDTO dönüyoruz
+        return userDTO;
     }
     
     @Override

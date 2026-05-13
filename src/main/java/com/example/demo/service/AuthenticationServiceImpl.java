@@ -38,12 +38,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
-            // Önce kullanıcının email onayı olup olmadığını manuel kontrol edelim ki doğru mesajı döndürebilelim
-            User existingUser = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
-            if (existingUser != null && existingUser.getIsEmailVerified() != null && !existingUser.getIsEmailVerified()) {
-                throw new RuntimeException("Giriş yapabilmek için lütfen önce email adresinizi (OTP) doğrulayın.");
-            }
-
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsername(),
