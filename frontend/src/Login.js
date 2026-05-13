@@ -237,9 +237,9 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
 
     const getRoleTitle = () => {
         if (isRegisterMode) {
-            return role === 'ORGANIZER' ? 'Organizatör Kaydı' : 'Müşteri Kaydı';
+            return role === 'ORGANIZER' ? 'Organizatör' : 'Müşteri';
         }
-        return 'Giriş Yap';
+        return 'Hesap Girişi';
     };
 
     const getRoleIcon = () => {
@@ -255,7 +255,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
             <div className="login-card">
                 <div className="login-header">
                     <span className="login-icon">{getRoleIcon()}</span>
-                    <h2>{getRoleTitle()} {isRegisterMode ? 'Kayıt Formu' : 'Girişi'}</h2>
+                    <h2>{isRegisterMode ? `${getRoleTitle()} Kayıt Formu` : getRoleTitle()}</h2>
                     <p>
                         {isRegisterMode 
                             ? 'Saniyeler içinde yeni hesabınızı oluşturup etkinlik dünyasına katılın.' 

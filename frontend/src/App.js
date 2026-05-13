@@ -869,14 +869,12 @@ function App() {
             👤 Müşteri Portalı
           </button>
           
-          {(currentUser && (currentUser.userRole === 'ORGANIZER' || currentUser.userRole === 'ADMIN')) && (
-            <button
-              className={`portal-tab-btn ${activePortal === 'organizer' ? 'active' : ''}`}
-              onClick={() => { setActivePortal('organizer'); handleBackToEvents(); }}
-            >
-              💼 Organizatör Portalı
-            </button>
-          )}
+          <button
+            className={`portal-tab-btn ${activePortal === 'organizer' ? 'active' : ''}`}
+            onClick={() => { setActivePortal('organizer'); handleBackToEvents(); }}
+          >
+            💼 Organizatör Portalı
+          </button>
 
           {(currentUser && currentUser.userRole === 'ADMIN') && (
             <button
