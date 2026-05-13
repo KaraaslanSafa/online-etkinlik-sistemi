@@ -91,10 +91,11 @@
 			<artifactId>h2</artifactId>
 		</dependency>
 
-		<!-- SQL Server JDBC Driver -->
+		<!-- PostgreSQL Driver -->
 		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- Test Dependencies -->
