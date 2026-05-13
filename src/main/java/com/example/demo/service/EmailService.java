@@ -1,96 +1,62 @@
 package com.example.demo.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmailService {
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
     
-    /**
-     * Etkinlik kaydı onay e-postası gönderi
-     */
+    @Value("${resend.from.email:onboarding@resend.dev}")
+    private String fromEmail;
+    
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String RESEND_API_URL = "https://api.resend.com/emails";
+
+    private void sendEmailViaResend(String to, String subject, String content) {
+        try {
+            if (resendApiKey == null || resendApiKey.isEmpty() || resendApiKey.contains("YOUR_API_KEY")) {
+                logger.warn("Resend API Key yapılandırılmamış. E-posta gönderimi atlanıyor.");
+                return;
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(resendApiKey);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("from", fromEmail);
+            body.put("to", to);
+            body.put("subject", subject);
+            body.put("html", content.replace("\n", "<br>"));
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            
+            ResponseEntity<String> response = restTemplate.postForEntity(RESEND_API_URL, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("E-posta başarıyla gönderildi (Resend API): " + to);
+            } else {
+                logger.error("Resend API hatası: " + response.getBody());
+            }
+        } catch (Exception e) {
+            logger.error("E-posta gönderiminde hata oluştu (Resend): " + to, e);
+        }
+    }
+
     public void sendEventRegistrationConfirmation(String participantEmail, String participantName, 
                                                    String eventTitle, String eventDate) {
-        try {
-            if (mailSender == null) {
-                logger.warn("Mail server yapılandırılmamış. E-posta gönderimi atlanıyor.");
-                return;
-            }
-            
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(participantEmail);
-            message.setSubject("Etkinlik Kaydınız Onaylandı - " + eventTitle);
-            message.setText(buildRegistrationEmailBody(participantName, eventTitle, eventDate));
-            message.setFrom("noreply@eventmanagement.com");
-            
-            mailSender.send(message);
-            logger.info("Kayıt onay e-postası gönderildi: " + participantEmail);
-            
-        } catch (Exception e) {
-            logger.error("E-posta gönderiminde hata oluştu: " + participantEmail, e);
-        }
-    }
-    
-    /**
-     * Etkinlik iptal e-postası gönder
-     */
-    public void sendEventCancellationNotice(String participantEmail, String participantName, String eventTitle) {
-        try {
-            if (mailSender == null) {
-                logger.warn("Mail server yapılandırılmamış. E-posta gönderimi atlanıyor.");
-                return;
-            }
-            
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(participantEmail);
-            message.setSubject("Etkinlik İptal Bildirim - " + eventTitle);
-            message.setText(buildCancellationEmailBody(participantName, eventTitle));
-            message.setFrom("noreply@eventmanagement.com");
-            
-            mailSender.send(message);
-            logger.info("İptal bildirimi e-postası gönderildi: " + participantEmail);
-            
-        } catch (Exception e) {
-            logger.error("E-posta gönderiminde hata oluştu: " + participantEmail, e);
-        }
-    }
-    
-    /**
-     * Etkinlik hatırlatıcı e-postası gönder
-     */
-    public void sendEventReminder(String participantEmail, String participantName, 
-                                  String eventTitle, String eventDate, String eventLocation) {
-        try {
-            if (mailSender == null) {
-                logger.warn("Mail server yapılandırılmamış. E-posta gönderimi atlanıyor.");
-                return;
-            }
-            
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(participantEmail);
-            message.setSubject("Hatırlatıcı: " + eventTitle + " başlıyor!");
-            message.setText(buildReminderEmailBody(participantName, eventTitle, eventDate, eventLocation));
-            message.setFrom("noreply@eventmanagement.com");
-            
-            mailSender.send(message);
-            logger.info("Hatırlatıcı e-postası gönderildi: " + participantEmail);
-            
-        } catch (Exception e) {
-            logger.error("E-posta gönderiminde hata oluştu: " + participantEmail, e);
-        }
-    }
-    
-    private String buildRegistrationEmailBody(String participantName, String eventTitle, String eventDate) {
-        return "Sayın " + participantName + ",\n\n" +
+        String content = "Sayın " + participantName + ",\n\n" +
                "Etkinlik kaydınız başarıyla onaylanmıştır.\n\n" +
                "Etkinlik Detayları:\n" +
                "- Etkinlik Adı: " + eventTitle + "\n" +
@@ -99,20 +65,22 @@ public class EmailService {
                "Sorularınız için bizimle iletişime geçebilirsiniz.\n\n" +
                "Saygılarımızla,\n" +
                "Etkinlik Yönetim Sistemi";
+        sendEmailViaResend(participantEmail, "Etkinlik Kaydınız Onaylandı - " + eventTitle, content);
     }
     
-    private String buildCancellationEmailBody(String participantName, String eventTitle) {
-        return "Sayın " + participantName + ",\n\n" +
+    public void sendEventCancellationNotice(String participantEmail, String participantName, String eventTitle) {
+        String content = "Sayın " + participantName + ",\n\n" +
                "Ne yazık ki '" + eventTitle + "' etkinliği iptal edilmiştir.\n" +
-               "Kaydınız otomatik olarak silinmiştir ve ücretiniz (varsa) iade edilecektir.\n\n" +
+               "Kaydınız otomatik olarak silinmiştir.\n\n" +
                "Sizden özür dileriz.\n\n" +
                "Saygılarımızla,\n" +
                "Etkinlik Yönetim Sistemi";
+        sendEmailViaResend(participantEmail, "Etkinlik İptal Bildirim - " + eventTitle, content);
     }
     
-    private String buildReminderEmailBody(String participantName, String eventTitle, 
-                                         String eventDate, String eventLocation) {
-        return "Sayın " + participantName + ",\n\n" +
+    public void sendEventReminder(String participantEmail, String participantName, 
+                                   String eventTitle, String eventDate, String eventLocation) {
+        String content = "Sayın " + participantName + ",\n\n" +
                "Kısa süre içinde kaydolduğunuz '" + eventTitle + "' etkinliği başlayacak!\n\n" +
                "Etkinlik Detayları:\n" +
                "- Etkinlik Adı: " + eventTitle + "\n" +
@@ -121,89 +89,42 @@ public class EmailService {
                "Lütfen zamanında etkinliğe katılmayı unutmayınız.\n\n" +
                "Saygılarımızla,\n" +
                "Etkinlik Yönetim Sistemi";
+        sendEmailViaResend(participantEmail, "Hatırlatıcı: " + eventTitle + " başlıyor!", content);
     }
 
-    /**
-     * E-posta doğrulama için OTP gönder
-     */
     public void sendOtpEmail(String email, String otpCode) {
         logger.info("\n===============================================\n" +
-                    "📧 SIMULATED EMAIL (OTP VERIFICATION)\n" +
+                    "📧 SENDING REAL EMAIL VIA RESEND API\n" +
                     "TO: " + email + "\n" +
                     "SUBJECT: E-Posta Doğrulama Kodunuz\n" +
-                    "BODY: Kayıt işleminizi tamamlamak için doğrulama kodunuz: " + otpCode + "\n" +
+                    "CODE: " + otpCode + "\n" +
                     "===============================================\n");
         
-        try {
-            if (mailSender == null) {
-                return;
-            }
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("E-Posta Doğrulama Kodunuz");
-            message.setText("Etkinlik Yönetim Sistemine hoş geldiniz.\n\n" +
-                            "Kayıt işleminizi tamamlamak için doğrulama kodunuz: " + otpCode + "\n\n" +
-                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
-            message.setFrom("noreply@eventmanagement.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("OTP E-posta gönderiminde hata oluştu: " + email, e);
-        }
+        String content = "<h3>Etkinlik Yönetim Sistemine hoş geldiniz.</h3>" +
+                         "<p>Kayıt işleminizi tamamlamak için doğrulama kodunuz:</p>" +
+                         "<h2 style='color: #4a90e2;'>" + otpCode + "</h2>" +
+                         "<p>Saygılarımızla,<br>Etkinlik Yönetim Sistemi</p>";
+        
+        sendEmailViaResend(email, "E-Posta Doğrulama Kodunuz", content);
     }
 
-    /**
-     * Organizatöre etkinlik onay e-postası gönder
-     */
     public void sendEventApprovalNotice(String organizerEmail, String organizerName, String eventTitle) {
-        logger.info("\n===============================================\n" +
-                    "📧 SIMULATED EMAIL (EVENT APPROVED)\n" +
-                    "TO: " + organizerEmail + "\n" +
-                    "SUBJECT: Etkinliğiniz Onaylandı - " + eventTitle + "\n" +
-                    "BODY: Tebrikler! Etkinliğiniz admin tarafından onaylanmış ve yayına alınmıştır.\n" +
-                    "===============================================\n");
-        
-        try {
-            if (mailSender == null) {
-                return;
-            }
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(organizerEmail);
-            message.setSubject("Etkinliğiniz Onaylandı - " + eventTitle);
-            message.setText("Sayın " + organizerName + ",\n\n" +
-                            "Tebrikler! '" + eventTitle + "' adlı etkinliğiniz admin tarafından onaylanmış ve yayına alınmıştır.\n\n" +
-                            "Müşteriler artık bilet satın alabilirler.\n\n" +
-                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
-            message.setFrom("noreply@eventmanagement.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("Onay e-posta gönderiminde hata: " + organizerEmail, e);
-        }
+        String content = "Sayın " + organizerName + ",\n\n" +
+                        "Tebrikler! '" + eventTitle + "' adlı etkinliğiniz admin tarafından onaylanmış ve yayına alınmıştır.\n\n" +
+                        "Müşteriler artık bilet satın alabilirler.\n\n" +
+                        "Saygılarımızla,\nEtkinlik Yönetim Sistemi";
+        sendEmailViaResend(organizerEmail, "Etkinliğiniz Onaylandı - " + eventTitle, content);
     }
 
-    /**
-     * Organizatöre etkinlik ret e-postası gönder
-     */
     public void sendEventRejectionNotice(String organizerEmail, String organizerName, String eventTitle, String reason) {
-        logger.info("\n===============================================\n" +
-                    "📧 SIMULATED EMAIL (EVENT REJECTED)\n" +
-                    "TO: " + organizerEmail + "\n" +
-                    "SUBJECT: Etkinliğiniz Reddedildi - " + eventTitle + "\n" +
-                    "BODY: Etkinliğiniz aşağıdaki sebeple reddedilmiştir: " + reason + "\n" +
-                    "===============================================\n");
-        
-        try {
-            if (mailSender == null) {
-                return;
-            }
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(organizerEmail);
-            message.setSubject("Etkinliğiniz Reddedildi - " + eventTitle);
-            message.setText("Sayın " + organizerName + ",\n\n" +
-                            "Maalesef '" + eventTitle + "' adlı etkinliğiniz admin tarafından reddedilmiştir.\n\n" +
-                            "Red Sebebi: " + reason + "\n\n" +
-                            "Lütfen gerekli düzenlemeleri yaparak tekrar onayabaşvurun.\n\n" +
-                            "Saygılarımızla,\nEtkinlik Yönetim Sistemi");
-            message.setFrom("noreply@eventmanagement.com");
+        String content = "Sayın " + organizerName + ",\n\n" +
+                        "Maalesef '" + eventTitle + "' adlı etkinliğiniz admin tarafından reddedilmiştir.\n\n" +
+                        "Red Sebebi: " + reason + "\n\n" +
+                        "Lütfen gerekli düzenlemeleri yaparak tekrar onayabaşvurun.\n\n" +
+                        "Saygılarımızla,\nEtkinlik Yönetim Sistemi";
+        sendEmailViaResend(organizerEmail, "Etkinliğiniz Reddedildi - " + eventTitle, content);
+    }
+}oreply@eventmanagement.com");
             mailSender.send(message);
         } catch (Exception e) {
             logger.error("Ret e-posta gönderiminde hata: " + organizerEmail, e);

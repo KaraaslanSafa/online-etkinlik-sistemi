@@ -139,9 +139,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         
         log.info("Kullanıcı kaydı geçici hafızaya alındı ve OTP gönderildi: {}", userDTO.getUsername());
         
-        // Geliştirme (Dev) ortamında Railway e-postaları engellediği için OTP'yi bio içinde frontend'e dönüyoruz
-        userDTO.setBio("DEV_OTP:" + otp);
-        
         // Şimdilik ID'siz UserDTO dönüyoruz
         return userDTO;
     }

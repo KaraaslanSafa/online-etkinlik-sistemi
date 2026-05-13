@@ -133,11 +133,9 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("Email adresi gereklidir.");
         }
         try {
-            String otp = userService.forgotPassword(email);
-            // Geliştirici ortamı için OTP'yi geri dönüyoruz, gerçek sistemde sadece başarı mesajı dönülmelidir
+            userService.forgotPassword(email);
             return ResponseEntity.ok(java.util.Map.of(
-                "message", "Şifre sıfırlama kodu e-postanıza gönderildi.",
-                "devOtp", otp
+                "message", "Şifre sıfırlama kodu e-postanıza gönderildi."
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

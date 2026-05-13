@@ -132,7 +132,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
             });
 
             if (response.ok) {
-                setSuccess('📧 Doğrulama kodu e-postanıza gönderildi (Arka plan loglarını kontrol edin). Lütfen kodu girin.');
+                setSuccess('📧 Kayıt başarılı! Doğrulama kodu e-postanıza gönderildi. Lütfen gelen kutunuzu kontrol edin.');
                 setShowOtpMode(true);
                 // We keep isRegisterMode true so the UI context remains registration, but we render OTP form instead
             } else {
@@ -197,8 +197,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
                 body: JSON.stringify({ email: formData.resetEmail })
             });
             if (response.ok) {
-                const data = await response.json();
-                setSuccess(data.message + (data.devOtp ? ` (DEV OTP: ${data.devOtp})` : ''));
+                setSuccess('📧 Şifre sıfırlama kodu e-postanıza gönderildi. Lütfen gelen kutunuzu kontrol edin.');
                 setForgotPasswordStep(2);
             } else {
                 const errText = await response.text();
@@ -227,8 +226,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
                 })
             });
             if (response.ok) {
-                const data = await response.json();
-                setSuccess(`✅ ${data.message || 'Şifreniz sıfırlandı.'}`);
+                setSuccess('🎉 Şifreniz başarıyla güncellendi. Giriş yapabilirsiniz.');
                 setTimeout(() => {
                     setShowForgotPasswordMode(false);
                     setForgotPasswordStep(1);
