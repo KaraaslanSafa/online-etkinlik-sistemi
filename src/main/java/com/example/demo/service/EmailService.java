@@ -124,10 +124,4 @@ public class EmailService {
                         "Saygılarımızla,\nEtkinlik Yönetim Sistemi";
         sendEmailViaResend(organizerEmail, "Etkinliğiniz Reddedildi - " + eventTitle, content);
     }
-}oreply@eventmanagement.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("Ret e-posta gönderiminde hata: " + organizerEmail, e);
-        }
-    }
 }
