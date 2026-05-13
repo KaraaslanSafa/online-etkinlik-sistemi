@@ -1,3 +1,4 @@
+import API_BASE_URL from './config';
 import React, { useState, useEffect } from 'react';
 
 const ReviewSystem = ({ eventId }) => {
@@ -15,7 +16,7 @@ const ReviewSystem = ({ eventId }) => {
 
     const fetchReviews = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/event/${eventId}`);
+            const response = await fetch(`${API_BASE_URL}/api/event-reviews/event/${eventId}`);
             if (response.ok) {
                 const data = await response.json();
                 setReviews(data);
@@ -28,7 +29,7 @@ const ReviewSystem = ({ eventId }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews`, {
+            const response = await fetch(`${API_BASE_URL}/api/event-reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ const ReviewSystem = ({ eventId }) => {
 
     const handleHelpful = async (reviewId) => {
         try {
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-reviews/${reviewId}/mark-helpful`, {
+            await fetch(`${API_BASE_URL}/api/event-reviews/${reviewId}/mark-helpful`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });

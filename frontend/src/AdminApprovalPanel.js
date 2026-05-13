@@ -1,3 +1,4 @@
+import API_BASE_URL from './config';
 import React, { useState, useEffect } from 'react';
 
 const AdminApprovalPanel = ({ onApprovalChanged }) => {
@@ -19,7 +20,7 @@ const AdminApprovalPanel = ({ onApprovalChanged }) => {
   const fetchPendingEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events/approval/pending`);
+      const response = await fetch(`${API_BASE_URL}/api/events/approval/pending`);
       if (!response.ok) {
         throw new Error('Bekleyen etkinlikler yüklenemedi');
       }
@@ -35,7 +36,7 @@ const AdminApprovalPanel = ({ onApprovalChanged }) => {
 
   const handleApprove = async (eventId) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/events/${eventId}/approve?adminId=1`, {
+      const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/approve?adminId=1`, {
         method: 'POST',
       });
 
@@ -64,7 +65,7 @@ const AdminApprovalPanel = ({ onApprovalChanged }) => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/events/${eventId}/reject?rejectionReason=${encodeURIComponent(reason.trim())}`,
+        `${API_BASE_URL}/api/events/${eventId}/reject?rejectionReason=${encodeURIComponent(reason.trim())}`,
         { method: 'POST' }
       );
 

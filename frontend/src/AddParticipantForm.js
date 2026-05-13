@@ -1,3 +1,4 @@
+import API_BASE_URL from './config';
 import React, { useState } from 'react';
 
 function AddParticipantForm({ eventId, onRegistered }) {
@@ -36,12 +37,12 @@ function AddParticipantForm({ eventId, onRegistered }) {
     try {
       let participant = null;
       const email = encodeURIComponent(formData.email.trim());
-      const searchResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants/email/${email}`);
+      const searchResponse = await fetch(`${API_BASE_URL}/api/participants/email/${email}`);
 
       if (searchResponse.ok) {
         participant = await searchResponse.json();
       } else if (searchResponse.status === 404) {
-        const createResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/participants`, {
+        const createResponse = await fetch(`${API_BASE_URL}/api/participants`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ function AddParticipantForm({ eventId, onRegistered }) {
       }
 
       const registerResponse = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/event-participants/register?eventId=${eventId}&participantId=${participant.id}`,
+        `${API_BASE_URL}/api/event-participants/register?eventId=${eventId}&participantId=${participant.id}`,
         {
           method: 'POST',
         }

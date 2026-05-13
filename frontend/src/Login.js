@@ -1,3 +1,4 @@
+import API_BASE_URL from './config';
 import React, { useState } from 'react';
 import './App.css';
 
@@ -32,7 +33,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
         setLoading(true);
         
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -117,7 +118,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
                 userRole: role // Set the account role contextually ('USER' or 'ORGANIZER')
             };
 
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/register`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userPayload)
@@ -153,7 +154,7 @@ const Login = ({ defaultRole = 'USER', onLoginSuccess }) => {
         setLoading(true);
         
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/verify-otp`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email, otp: otpCode })

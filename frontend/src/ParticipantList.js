@@ -1,3 +1,4 @@
+import API_BASE_URL from './config';
 import React, { useState, useEffect, useCallback } from 'react';
 
 function ParticipantList({ eventId, onUpdate }) {
@@ -9,7 +10,7 @@ function ParticipantList({ eventId, onUpdate }) {
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/event-participants/event/${eventId}`);
+      const response = await fetch(`${API_BASE_URL}/api/event-participants/event/${eventId}`);
       const data = await response.json();
       setParticipants(data);
     } catch (error) {
@@ -30,7 +31,7 @@ function ParticipantList({ eventId, onUpdate }) {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/event-participants/unregister?eventId=${eventId}&participantId=${participantId}`,
+        `${API_BASE_URL}/api/event-participants/unregister?eventId=${eventId}&participantId=${participantId}`,
         { method: 'DELETE' }
       );
 
