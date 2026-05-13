@@ -38,6 +38,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
+            // Önce kullanıcının email onayı olup olmadığını manuel kontrol edelim ki doğru mesajı döndürebilelim
+            User existingUser = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+            if (existingUser != null && existingUser.getIsEmailVerified() != null && !existingUser.getIsEmailVerified()) {
+                throw new RuntimeException("Giriş yapabilmek için lütfen önce email adresinizi (OTP) doğrulayın.");
+            }
+
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsername(),
@@ -61,6 +67,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.info("Kullanıcı başarıyla giriş yaptı: {}", loginRequest.getUsername());
             
             return new LoginResponse(accessToken, refreshToken, 86400000L, userDTO);
+        } catch (RuntimeException ex) {
+            // Yukarıda fırlattığımız özel hatayı (OTP hatası vb.) yakala ve aynen fırlat
+            if (ex.getMessage().contains("doğrulayın")) {
+                throw ex;
+            }
+            log.error("Giriş başarısız: {}", loginRequest.getUsername());
+            throw new RuntimeException("Kullanıcı adı veya şifre hatalı", ex);
         } catch (Exception ex) {
             log.error("Giriş başarısız: {}", loginRequest.getUsername());
             throw new RuntimeException("Kullanıcı adı veya şifre hatalı", ex);
