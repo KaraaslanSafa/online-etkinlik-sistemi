@@ -60,17 +60,17 @@ public class User implements UserDetails {
     @Column(length = 1000)
     private String bio;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isActive = true;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isEmailVerified = false;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isPhoneVerified = false;
     
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'USER'")
+    @Column(columnDefinition = "VARCHAR(50)")
     private UserRole userRole = UserRole.USER;
     
     @CreationTimestamp

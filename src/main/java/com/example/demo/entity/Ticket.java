@@ -42,7 +42,7 @@ public class Ticket {
     private String ticketNumber;
     
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'STANDARD'")
+    @Column(columnDefinition = "VARCHAR(50)")
     private TicketType ticketType = TicketType.STANDARD;
     
     @Column
@@ -58,11 +58,11 @@ public class Ticket {
     private LocalDateTime purchaseDate;
     
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'PENDING'")
+    @Column(columnDefinition = "VARCHAR(50)")
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
     
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'NONE'")
+    @Column(columnDefinition = "VARCHAR(50)")
     private PaymentMethod paymentMethod = PaymentMethod.NONE;
     
     @Column(length = 100)
@@ -71,7 +71,7 @@ public class Ticket {
     @Column(length = 500)
     private String qrCodeUrl;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isUsed = false;
     
     @Column(columnDefinition = "TIMESTAMP")

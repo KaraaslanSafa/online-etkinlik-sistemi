@@ -47,20 +47,20 @@ public class Admin {
     @Column(nullable = false)
     private String fullName;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isActive = true;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isSuperAdmin = false;
     
     // İstatistikler
-    @Column(columnDefinition = "INT DEFAULT 0")
+    @Column(columnDefinition = "INT")
     private Integer approvalsCount = 0;
     
-    @Column(columnDefinition = "INT DEFAULT 0")
+    @Column(columnDefinition = "INT")
     private Integer rejectionsCount = 0;
     
-    @Column(columnDefinition = "INT DEFAULT 0")
+    @Column(columnDefinition = "INT")
     private Integer deletionsCount = 0;
     
     @CreationTimestamp

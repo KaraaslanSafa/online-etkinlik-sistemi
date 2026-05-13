@@ -53,7 +53,7 @@ public class Event {
     @Column(name = "price_amount")
     private Double price = 0.0;
     
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN")
     private Boolean isFree = false;
     
     @Column(nullable = false)
@@ -77,10 +77,10 @@ public class Event {
     private EventOrganizer organizer;
     
     // Rating ve Review İstatistikleri
-    @Column(columnDefinition = "DECIMAL(3,2) DEFAULT 0")
+    @Column(columnDefinition = "DECIMAL(3,2)")
     private Double averageRating = 0.0;
     
-    @Column(columnDefinition = "INT DEFAULT 0")
+    @Column(columnDefinition = "INT")
     private Integer reviewCount = 0;
     
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -100,7 +100,7 @@ public class Event {
     @Column(length = 500)
     private String rejectionReason;
     
-    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
     
     @Column(columnDefinition = "TIMESTAMP")
