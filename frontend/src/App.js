@@ -1244,6 +1244,105 @@ function App() {
                       </form>
                     </div>
                   </div>
+
+                  {/* Kaydolma Formu (Sadece Giriş Yapmış Kullanıcılar İçin) */}
+                  {currentUser && (
+                    <div className="detail-register-block animate-slide">
+                      <div className="register-sticky-card">
+                        <h3>🎟️ Etkinliğe Kaydol</h3>
+                        <p className="register-intro">Hesabınızla giriş yaptınız. Bilgileriniz otomatik dolduruldu, kaydınızı anında tamamlayabilirsiniz.</p>
+
+                        {regMessage && <div className="register-status-msg">{regMessage}</div>}
+
+                        <form onSubmit={handleRegister} className="register-form">
+                          <div className="form-field">
+                            <label>Adınız *</label>
+                            <input
+                              type="text"
+                              placeholder="Örn. Ahmet"
+                              value={regForm.firstName}
+                              onChange={(e) => setRegForm({ ...regForm, firstName: e.target.value })}
+                              required
+                              readOnly // Zaten giriş yapmış, değiştirmesine gerek yok (veya isteğe bağlı kaldırılabilir)
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label>Soyadınız *</label>
+                            <input
+                              type="text"
+                              placeholder="Örn. Yılmaz"
+                              value={regForm.lastName}
+                              onChange={(e) => setRegForm({ ...regForm, lastName: e.target.value })}
+                              required
+                              readOnly
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label>E-Posta Adresiniz *</label>
+                            <input
+                              type="email"
+                              placeholder="ahmet@example.com"
+                              value={regForm.email}
+                              onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+                              required
+                              readOnly
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label>Telefon Numarası</label>
+                            <input
+                              type="text"
+                              placeholder="0555 555 5555"
+                              value={regForm.phoneNumber}
+                              onChange={(e) => setRegForm({ ...regForm, phoneNumber: e.target.value })}
+                            />
+                          </div>
+
+                          {/* Kupon Kodu Bölümü (Sadece ücretli etkinlikler için) */}
+                          {!selectedEvent.isFree && selectedEvent.price > 0 && (
+                            <div className="promo-coupon-section" style={{ borderTop: '1px dashed #ddd', paddingTop: '15px', marginTop: '15px', marginBottom: '15px' }}>
+                              <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>🎟️ Promosyon / Kupon Kodu</label>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                  type="text"
+                                  placeholder="Örn: BAHAR20"
+                                  value={couponCodeInput}
+                                  onChange={(e) => setCouponCodeInput(e.target.value)}
+                                  style={{ flex: 1, padding: '6px', fontSize: '13px', textTransform: 'uppercase' }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={handleApplyCoupon}
+                                  style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: '#5856d6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  Uygula
+                                </button>
+                              </div>
+                              {couponMsg && (
+                                <p style={{ fontSize: '12px', marginTop: '5px', color: appliedPromo ? '#28a745' : '#dc3545', fontWeight: 'bold' }}>
+                                  {couponMsg}
+                                </p>
+                              )}
+                              {appliedPromo && (
+                                <div style={{ backgroundColor: '#eefcf2', border: '1px solid #28a745', padding: '10px', borderRadius: '4px', marginTop: '8px' }}>
+                                  <p style={{ fontSize: '13px', margin: 0, color: '#155724' }}>
+                                    <strong>Kupon uygulandı!</strong> %{appliedPromo.discountPercentage} İndirim.
+                                  </p>
+                                  <p style={{ fontSize: '14px', margin: '5px 0 0 0', fontWeight: 'bold', color: '#155724' }}>
+                                    Ödenecek Tutar: <span style={{ textDecoration: 'line-through', color: '#888', fontSize: '13px' }}>{selectedEvent.price} TL</span> {(selectedEvent.price * (1 - appliedPromo.discountPercentage / 100)).toFixed(2)} TL
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <button type="submit" className="btn-register-submit" disabled={regLoading}>
+                            {regLoading ? 'Kayıt Yapılıyor...' : '🎟️ Katılımımı Onayla'}
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
