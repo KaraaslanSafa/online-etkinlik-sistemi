@@ -54,6 +54,7 @@ function App() {
   // Organizatör Sekmeleri ve Promosyon State'leri
   const [organizerTab, setOrganizerTab] = useState('events'); // 'events', 'promotions'
   const [showEventModal, setShowEventModal] = useState(false);
+  const [editEvent, setEditEvent] = useState(null);
   const [showParticipantsModalFor, setShowParticipantsModalFor] = useState(null);
   const [promotions, setPromotions] = useState([]);
   const [promoForm, setPromoForm] = useState({
@@ -1460,6 +1461,10 @@ function App() {
                                         👥 Katılımcılar
                                       </button>
                                       <button
+                                        onClick={() => {
+                                          setEditEvent(e);
+                                          setShowEventModal(true);
+                                        }}
                                         style={{ flex: 1, padding: '8px', backgroundColor: '#f0f0f5', color: '#333', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
                                       >
                                         ✏️ Düzenle
@@ -1476,17 +1481,28 @@ function App() {
                             <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                               <div className="modal-content animate-slide" style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '20px', position: 'relative' }}>
                                 <button
-                                  onClick={() => setShowEventModal(false)}
+                                  onClick={() => {
+                                    setShowEventModal(false);
+                                    setEditEvent(null);
+                                  }}
                                   style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#888' }}
                                 >
                                   ✖
                                 </button>
-                                <h2 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>🎉 Yeni Etkinlik Oluştur</h2>
+                                <h2 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                                  {editEvent ? `✏️ Etkinliği Düzenle: ${editEvent.title}` : '🎉 Yeni Etkinlik Oluştur'}
+                                </h2>
                                 <EventForm
                                   organizerId={currentUser.id}
+                                  editEvent={editEvent}
                                   onCreated={(newEvent) => {
                                     handleEventCreated(newEvent);
                                     setShowEventModal(false);
+                                  }}
+                                  onUpdated={(updatedEvent) => {
+                                    triggerRefresh();
+                                    setShowEventModal(false);
+                                    setEditEvent(null);
                                   }}
                                 />
                               </div>

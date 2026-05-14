@@ -1,18 +1,19 @@
 import API_BASE_URL from './config';
 import React, { useState } from "react";
 
-function EventForm({ organizerId, onCreated }) {
+function EventForm({ organizerId, onCreated, editEvent, onUpdated }) {
+  const isEdit = !!editEvent;
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    location: "",
-    city: "",
-    price: 0,
-    isFree: true,
-    capacity: 100,
-    categoryId: 1
+    title: editEvent?.title || "",
+    description: editEvent?.description || "",
+    startDate: editEvent?.startDate || "",
+    endDate: editEvent?.endDate || "",
+    location: editEvent?.location || "",
+    city: editEvent?.city || "",
+    price: editEvent?.price || 0,
+    isFree: editEvent?.isFree !== undefined ? editEvent.isFree : true,
+    capacity: editEvent?.capacity || 100,
+    categoryId: editEvent?.categoryId || 1
   });
 
   const [loading, setLoading] = useState(false);
@@ -27,12 +28,12 @@ function EventForm({ organizerId, onCreated }) {
       })
       .then(data => {
         setCategories(data);
-        if (data.length > 0) {
+        if (data.length > 0 && !isEdit) {
           setFormData(prev => ({ ...prev, categoryId: data[0].id }));
         }
       })
       .catch(err => console.error(err));
-  }, []);
+  }, [isEdit]);
 
   const getMinDateTime = () => {
     const now = new Date();
@@ -60,7 +61,7 @@ function EventForm({ organizerId, onCreated }) {
     const start = new Date(formData.startDate);
     const end = formData.endDate ? new Date(formData.endDate) : null;
 
-    if (start < now) {
+    if (!isEdit && start < now) {
       setMessage('⚠️ Etkinlik başlangıç tarihi geçmiş bir tarih olamaz!');
       return;
     }
@@ -77,8 +78,8 @@ function EventForm({ organizerId, onCreated }) {
         organizerId: organizerId || null
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/events`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/api/events${isEdit ? '/' + editEvent.id : ''}`, {
+        method: isEdit ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -86,30 +87,35 @@ function EventForm({ organizerId, onCreated }) {
       });
 
       if (response.ok) {
-        const newEvent = await response.json();
-        setMessage('✓ Etkinlik başarıyla oluşturuldu! Admin onayını beklemektedir.');
+        const result = await response.json();
+        setMessage(isEdit ? '✓ Etkinlik başarıyla güncellendi!' : '✓ Etkinlik başarıyla oluşturuldu! Admin onayını beklemektedir.');
 
-        if (onCreated) {
-          onCreated(newEvent);
+        if (isEdit && onUpdated) {
+          onUpdated(result);
+        } else if (!isEdit && onCreated) {
+          onCreated(result);
         }
 
-        // Formu sıfırla
-        setFormData({
-          title: "",
-          description: "",
-          startDate: "",
-          endDate: "",
-          location: "",
-          city: "",
-          price: 0,
-          isFree: true,
-          capacity: 100,
-          categoryId: 1
-        });
+        if (!isEdit) {
+          // Formu sıfırla (sadece yeni oluşturmada)
+          setFormData({
+            title: "",
+            description: "",
+            startDate: "",
+            endDate: "",
+            location: "",
+            city: "",
+            price: 0,
+            isFree: true,
+            capacity: 100,
+            categoryId: 1
+          });
+        }
 
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('Etkinlik oluştururken hata oluştu!');
+        const errText = await response.text();
+        setMessage(`Hata: ${errText || 'İşlem başarısız!'}`);
       }
     } catch (error) {
       console.error('Hata:', error);
@@ -127,7 +133,7 @@ function EventForm({ organizerId, onCreated }) {
       borderRadius: '5px',
       backgroundColor: '#f9f9f9'
     }}>
-      <h2>📝 Yeni Etkinlik Oluştur (Organizatör)</h2>
+      <h2>{isEdit ? `✏️ Etkinliği Düzenle: ${editEvent.title}` : '🎉 Yeni Etkinlik Oluştur (Organizatör)'}</h2>
 
       {message && <div style={{
         padding: '10px',
@@ -169,7 +175,7 @@ function EventForm({ organizerId, onCreated }) {
             name="startDate"
             value={formData.startDate}
             onChange={handleChange}
-            min={getMinDateTime()}
+            min={!isEdit ? getMinDateTime() : undefined}
             required
             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
           />
@@ -282,20 +288,24 @@ function EventForm({ organizerId, onCreated }) {
         disabled={loading}
         style={{
           padding: '10px 20px',
-          backgroundColor: loading ? '#ccc' : '#007bff',
+          backgroundColor: loading ? '#ccc' : (isEdit ? '#34c759' : '#007bff'),
           color: 'white',
           border: 'none',
           borderRadius: '5px',
           cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: '16px'
+          fontSize: '16px',
+          fontWeight: 'bold',
+          width: '100%'
         }}
       >
-        {loading ? 'Oluşturuluyor...' : '✓ Etkinlik Oluştur'}
+        {loading ? (isEdit ? 'Güncelleniyor...' : 'Oluşturuluyor...') : (isEdit ? '✓ Değişiklikleri Kaydet' : '✓ Etkinlik Oluştur')}
       </button>
 
-      <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-        ℹ️ Etkinlik oluşturulduktan sonra admin onayını bekleyecektir.
-      </p>
+      {!isEdit && (
+        <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+          ℹ️ Etkinlik oluşturulduktan sonra admin onayını bekleyecektir.
+        </p>
+      )}
     </form>
   );
 }
