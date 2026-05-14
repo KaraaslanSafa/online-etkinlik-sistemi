@@ -72,7 +72,7 @@ public class CampaignServiceImpl implements CampaignService {
     
     @Override
     public CampaignDTO getByCampaignCode(String code) {
-        Campaign campaign = campaignRepository.findByCampaignCode(code)
+        Campaign campaign = campaignRepository.findByCampaignCodeIgnoreCase(code)
             .orElseThrow(() -> new ResourceNotFoundException("Campaign not found with code: " + code));
         return convertToDTO(campaign);
     }

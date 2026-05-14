@@ -16,7 +16,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     
     List<Campaign> findByOrganizerId(Long organizerId);
     List<Campaign> findByEventId(Long eventId);
-    Optional<Campaign> findByCampaignCode(String campaignCode);
+    Optional<Campaign> findByCampaignCodeIgnoreCase(String campaignCode);
     
     @Query("SELECT c FROM Campaign c WHERE c.isActive = true")
     List<Campaign> findAllActive();
