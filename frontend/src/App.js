@@ -545,7 +545,10 @@ function App() {
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/event-participants/${regId}/status?status=CANCELLED`, {
-        method: 'PATCH'
+        method: 'PATCH',
+        headers: {
+          ...(currentUser && currentUser.token ? { 'Authorization': `Bearer ${currentUser.token}` } : {})
+        }
       });
       if (res.ok) {
         alert("✓ Biletiniz başarıyla iptal edildi.");
