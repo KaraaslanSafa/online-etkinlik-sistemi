@@ -1255,47 +1255,11 @@ function App() {
                         {regMessage && <div className="register-status-msg">{regMessage}</div>}
 
                         <form onSubmit={handleRegister} className="register-form">
-                          <div className="form-field">
-                            <label>Adınız *</label>
-                            <input
-                              type="text"
-                              placeholder="Örn. Ahmet"
-                              value={regForm.firstName}
-                              onChange={(e) => setRegForm({ ...regForm, firstName: e.target.value })}
-                              required
-                              readOnly // Zaten giriş yapmış, değiştirmesine gerek yok (veya isteğe bağlı kaldırılabilir)
-                            />
-                          </div>
-                          <div className="form-field">
-                            <label>Soyadınız *</label>
-                            <input
-                              type="text"
-                              placeholder="Örn. Yılmaz"
-                              value={regForm.lastName}
-                              onChange={(e) => setRegForm({ ...regForm, lastName: e.target.value })}
-                              required
-                              readOnly
-                            />
-                          </div>
-                          <div className="form-field">
-                            <label>E-Posta Adresiniz *</label>
-                            <input
-                              type="email"
-                              placeholder="ahmet@example.com"
-                              value={regForm.email}
-                              onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                              required
-                              readOnly
-                            />
-                          </div>
-                          <div className="form-field">
-                            <label>Telefon Numarası</label>
-                            <input
-                              type="text"
-                              placeholder="0555 555 5555"
-                              value={regForm.phoneNumber}
-                              onChange={(e) => setRegForm({ ...regForm, phoneNumber: e.target.value })}
-                            />
+                          {/* Bilgiler zaten currentUser'dan geliyor, bu yüzden inputları gizliyoruz */}
+                          <div style={{ padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '8px', marginBottom: '15px', border: '1px solid #e9ecef' }}>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#495057' }}>
+                              <strong>{regForm.firstName} {regForm.lastName}</strong> ({regForm.email}) olarak kaydoluyorsunuz.
+                            </p>
                           </div>
 
                           {/* Kupon Kodu Bölümü (Sadece ücretli etkinlikler için) */}
